@@ -1,0 +1,14 @@
+fastapi[standard]
+uvicorn
+faster-whisper
+speechbrain
+spacy
+scikit-learn
+supabase
+xgboost
+python-multipart
+python-dotenv
+librosa
+pyannote.audio
+motor
+dnspython
