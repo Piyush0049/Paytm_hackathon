@@ -25,10 +25,10 @@ export const AlertsScreen: React.FC<AlertsScreenProps> = ({ notifications }) => 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F5F7FA' },
   pageHeader: { padding: 24, paddingBottom: 10 },
-  pageTitle: { fontSize: 26, fontFamily: fonts.bold, color: '#111' },
+  pageTitle: { fontSize: 24, fontFamily: fonts.bold, color: '#111' },
   notifCard: { backgroundColor: WHITE, borderRadius: 16, padding: 20, marginHorizontal: 16, marginBottom: 12, elevation: 2 },
   notifUnread: { borderLeftWidth: 4, borderLeftColor: PAYTM_LIGHT_BLUE },
-  notifTitle: { fontSize: 16, fontFamily: fonts.bold, color: '#111', marginBottom: 4 },
-  notifBody: { fontSize: 14, fontFamily: fonts.regular, color: '#555', marginBottom: 10 },
-  notifTime: { fontSize: 12, color: '#999', fontFamily: fonts.medium },
+  notifTitle: { fontSize: 15, fontFamily: fonts.bold, color: '#111', marginBottom: 4 },
+  notifBody: { fontSize: 13, fontFamily: fonts.regular, color: '#555', marginBottom: 10 },
+  notifTime: { fontSize: 11, color: '#999', fontFamily: fonts.medium },
 });

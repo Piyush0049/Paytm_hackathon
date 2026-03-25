@@ -30,11 +30,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   return (
     <SafeAreaView style={s.authSafe}>
       <StatusBar barStyle="dark-content" backgroundColor={WHITE} />
-      
+
       <View style={s.cleanAuthHeader}>
         <Image
           source={paytmLogo}
-          style={{ width: 120, height: 40, resizeMode: 'contain' }}
+          style={{ width: 180, height: 100, resizeMode: 'contain' }}
         />
       </View>
 
@@ -100,21 +100,21 @@ const s = StyleSheet.create({
   cleanAuthHeader: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, paddingTop: 24, height: 70 },
   authScrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
   authWelcomeBlock: { marginBottom: 24 },
-  authTitle: { fontSize: 28, fontFamily: fonts.bold, color: '#111' },
-  authSub: { fontSize: 14, fontFamily: fonts.regular, color: '#666', marginTop: 2 },
+  authTitle: { fontSize: 20, fontFamily: fonts.bold, color: '#111' },
+  authSub: { fontSize: 13, fontFamily: fonts.regular, color: '#666', marginTop: 2 },
   authFormContainer: { marginBottom: 24 },
   inputContainer: { marginBottom: 14 },
-  inputLabel: { fontSize: 13, fontFamily: fonts.semiBold, color: '#555', marginBottom: 6, marginLeft: 4 },
-  premiumInput: { backgroundColor: '#F9FAFC', borderRadius: 12, padding: 14, fontSize: 16, fontFamily: fonts.medium, color: '#111', borderWidth: 1, borderColor: '#EEE' },
+  inputLabel: { fontSize: 12, fontFamily: fonts.semiBold, color: '#555', marginBottom: 6, marginLeft: 4 },
+  premiumInput: { backgroundColor: '#F9FAFC', borderRadius: 12, padding: 14, fontSize: 14, fontFamily: fonts.medium, color: '#111', borderWidth: 1, borderColor: '#EEE' },
   otpAuthContainer: { alignItems: 'center', marginBottom: 30 },
-  otpAuthTitle: { fontSize: 20, fontFamily: fonts.bold, color: '#111' },
-  otpAuthSub: { fontSize: 14, fontFamily: fonts.regular, color: '#888', marginTop: 4 },
+  otpAuthTitle: { fontSize: 18, fontFamily: fonts.bold, color: '#111' },
+  otpAuthSub: { fontSize: 12, fontFamily: fonts.regular, color: '#888', marginTop: 4 },
   otpAuthInput: { backgroundColor: '#F9FAFC', borderRadius: 16, padding: 20, fontSize: 32, fontFamily: fonts.bold, color: PAYTM_BLUE, letterSpacing: 10, textAlign: 'center', width: '90%', marginTop: 20, borderWidth: 2, borderColor: PAYTM_LIGHT_BLUE },
   actionBtnAuth: { backgroundColor: PAYTM_LIGHT_BLUE, borderRadius: 14, padding: 16, alignItems: 'center', elevation: 5, shadowColor: PAYTM_LIGHT_BLUE, shadowOpacity: 0.3, shadowRadius: 10 },
-  actionBtnTextAuth: { color: WHITE, fontSize: 17, fontFamily: fonts.bold },
+  actionBtnTextAuth: { color: WHITE, fontSize: 15, fontFamily: fonts.bold },
   switchAuthBtn: { marginTop: 16, alignItems: 'center' },
-  switchAuthText: { color: PAYTM_BLUE, fontFamily: fonts.semiBold, fontSize: 14 },
+  switchAuthText: { color: PAYTM_BLUE, fontFamily: fonts.semiBold, fontSize: 13 },
   authTrustBlock: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0F9F4', padding: 16, borderRadius: 16 },
-  trustTitle: { fontSize: 15, fontFamily: fonts.bold, color: '#1A531B' },
-  trustSub: { fontSize: 13, fontFamily: fonts.regular, color: '#1A531B', opacity: 0.7 },
+  trustTitle: { fontSize: 14, fontFamily: fonts.bold, color: '#1A531B' },
+  trustSub: { fontSize: 11, fontFamily: fonts.regular, color: '#1A531B', opacity: 0.7 },
 });
