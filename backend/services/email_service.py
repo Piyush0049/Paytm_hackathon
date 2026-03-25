@@ -34,7 +34,7 @@ body {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background:
 .f p {{ color: #888; font-size: 12px; margin: 0; }}
 </style></head><body>
 <div class="c">
-  <div class="h"><h1>Paytm <span style="color:#00baf2;">VOICE GUARD</span></h1></div>
+  <div class="h"><h1>Paytm <span style="color:#00baf2;">VoiceGuard</span></h1></div>
   <div class="b">
     <h2>🔐 Secure Authentication</h2>
     <p>Use the code below to complete your verification.<br>This code expires in 10 minutes.</p>
