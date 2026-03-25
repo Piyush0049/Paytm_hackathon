@@ -12,3 +12,7 @@ librosa
 pyannote.audio
 motor
 dnspython
+PyJWT
+passlib
+bcrypt
+httpx
