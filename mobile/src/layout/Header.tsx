@@ -17,9 +17,9 @@ export const Header: React.FC<HeaderProps> = ({ userName }) => {
         <TouchableOpacity style={s.userIconReal}>
           <Text style={s.userIconInit}>{initials}</Text>
         </TouchableOpacity>
-        <Image 
-          source={paytmLogo} 
-          style={{ width: 94, height: 32, resizeMode: 'contain', marginLeft: 12, tintColor: '#FFF' }} 
+        <Image
+          source={paytmLogo}
+          style={{ width: 100, height: 60, resizeMode: 'contain', marginLeft: 12, tintColor: '#FFF' }}
         />
       </View>
       <View style={s.topBarRight}>
