@@ -31,11 +31,11 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
     }
   };
 
-  const bg = isDarkMode ? '#0D0D0D' : '#F5F7FA';
-  const surface = isDarkMode ? '#1A1A2E' : WHITE;
+  const bg = isDarkMode ? '#121212' : '#F5F7FA';
+  const surface = isDarkMode ? '#1E1E1E' : WHITE;
   const text = isDarkMode ? DARK_TEXT : '#111';
   const textMuted = isDarkMode ? DARK_TEXT_MUTED : '#666';
-  const subtleIconBg = isDarkMode ? '#1C2951' : '#F5F7FA';
+  const subtleIconBg = isDarkMode ? '#1A67B8' : '#F5F7FA';
 
   const handleVerify = async () => {
     if (!password || !token || !backendUrl) return;
@@ -81,7 +81,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
       {isUnlocked ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
           {/* ─── Balance Card ─── */}
-          <View style={[s.balanceCard, { backgroundColor: isDarkMode ? '#1C2951' : PAYTM_BLUE }]}>
+          <View style={[s.balanceCard, { backgroundColor: isDarkMode ? '#333333' : PAYTM_BLUE }]}>
             <View style={s.balanceCardHeader}>
               <View style={s.balanceLockBadge}>
                 <ShieldCheck size={14} color="#21C17C" />
@@ -143,8 +143,8 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
         /* ─── Locked State ─── */
         <View style={s.lockedContainer}>
           <View style={[s.lockedCard, { backgroundColor: surface }]}>
-            <View style={[s.lockedIconCircle, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}>
-              <Lock size={40} color={PAYTM_BLUE} />
+            <View style={[s.lockedIconCircle, { backgroundColor: isDarkMode ? '#1A67B8' : '#EBF8FF' }]}>
+              <Lock size={40} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} />
             </View>
             <Text style={[s.lockedTitle, { color: text }]}>Balance is Protected</Text>
             <Text style={[s.lockedSubtitle, { color: textMuted }]}>Enter your password to view your{'\n'}account balance and transaction history</Text>
@@ -162,15 +162,15 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
       {/* ─── Password Modal ─── */}
       <Modal visible={showPasswordModal} transparent animationType="slide">
         <View style={s.modalOverlay}>
-          <View style={[s.modalContainer, { backgroundColor: isDarkMode ? '#1A1A2E' : WHITE }]}>
+          <View style={[s.modalContainer, { backgroundColor: isDarkMode ? '#1E1E1E' : WHITE }]}>
             <View style={s.modalHandle} />
-            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}>
-              <Lock size={32} color={PAYTM_BLUE} />
+            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? '#1A67B8' : '#EBF8FF' }]}>
+              <Lock size={32} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} />
             </View>
             <Text style={[s.modalTitle, { color: text }]}>Verify Identity</Text>
             <Text style={[s.modalSubtitle, { color: textMuted }]}>Enter your account password to access balance & transaction history</Text>
 
-            <View style={[s.passwordRow, { borderColor: isDarkMode ? '#333' : '#DDD', backgroundColor: isDarkMode ? '#0D0D0D' : '#F9FAFB' }]}>
+            <View style={[s.passwordRow, { borderColor: isDarkMode ? '#444' : '#DDD', backgroundColor: isDarkMode ? '#121212' : '#F9FAFB' }]}>
               <Lock size={18} color={textMuted} style={{ marginRight: 12 }} />
               <TextInput
                 style={[s.passwordInput, { color: text }]}

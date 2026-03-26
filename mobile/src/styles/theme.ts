@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 export const PAYTM_BLUE = '#002E6E';
-export const PAYTM_LIGHT_BLUE = '#00BAF2';
+export const PAYTM_LIGHT_BLUE = '#1A67B8';
 export const SUCCESS_GREEN = '#21C17C';
 export const ERROR_RED = '#FF4E4E';
 export const BACKGROUND_COLOR = '#F5F7FA';

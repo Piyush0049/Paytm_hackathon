@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, useColorScheme } from 'react-native';
 import { ChevronLeft, Search, Phone, ShieldCheck } from 'lucide-react-native';
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, SUCCESS_GREEN, WHITE, BACKGROUND_COLOR, fonts } from '../styles/theme';
 
@@ -19,10 +19,18 @@ export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRechar
   const [number, setNumber] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  const bg = isDarkMode ? '#121212' : BACKGROUND_COLOR;
+  const cardBg = isDarkMode ? '#1E1E1E' : WHITE;
+  const textClr = isDarkMode ? '#FFFFFF' : '#111';
+  const textMuted = isDarkMode ? '#AAAAAA' : '#666';
+
   return (
-    <View style={s.container}>
+    <View style={[s.container, { backgroundColor: bg }]}>
       {/* Header */}
-      <View style={s.header}>
+      <View style={[s.header, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE }]}>
         <TouchableOpacity onPress={onBack} style={s.backBtn}>
           <ChevronLeft color={WHITE} size={28} />
         </TouchableOpacity>
@@ -31,12 +39,12 @@ export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRechar
 
       <ScrollView contentContainerStyle={s.content}>
         {/* Number Input */}
-        <View style={s.card}>
-          <Text style={s.label}>Enter Mobile Number</Text>
-          <View style={s.inputWrapper}>
-            <Phone color={PAYTM_LIGHT_BLUE} size={20} />
+        <View style={[s.card, { backgroundColor: cardBg }]}>
+          <Text style={[s.label, { color: textMuted }]}>Enter Mobile Number</Text>
+          <View style={[s.inputWrapper, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>
+            <Phone color={isDarkMode ? '#FFFFFF' : PAYTM_LIGHT_BLUE} size={20} />
             <TextInput
-              style={s.input}
+              style={[s.input, { color: textClr }]}
               placeholder="Ex: 98765 43210"
               keyboardType="phone-pad"
               maxLength={10}
@@ -54,27 +62,27 @@ export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRechar
                 <Text style={s.opText}>Jio</Text>
               </View>
               <View style={{ marginLeft: 12 }}>
-                <Text style={s.opName}>Reliance Jio - Pre-paid</Text>
-                <Text style={s.opCircleLoc}>Uttar Pradesh (East)</Text>
+                <Text style={[s.opName, { color: textClr }]}>Reliance Jio - Pre-paid</Text>
+                <Text style={[s.opCircleLoc, { color: textMuted }]}>Uttar Pradesh (East)</Text>
               </View>
               <TouchableOpacity style={s.changeBtn}>
-                <Text style={s.changeText}>Change</Text>
+                <Text style={[s.changeText, { color: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]}>Change</Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={s.sectionTitle}>Popular Plans</Text>
+            <Text style={[s.sectionTitle, { color: textClr }]}>Popular Plans</Text>
             {MOCK_PLANS.map((plan) => (
-              <TouchableOpacity 
-                key={plan.id} 
-                style={[s.planCard, selectedPlan?.id === plan.id && s.selectedPlanCard]} 
+              <TouchableOpacity
+                key={plan.id}
+                style={[s.planCard, { backgroundColor: cardBg, borderColor: isDarkMode ? '#333' : '#EEE' }, selectedPlan?.id === plan.id && [s.selectedPlanCard, { borderColor: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE, backgroundColor: isDarkMode ? '#1A67B822' : '#F0F9FF' }]]}
                 onPress={() => setSelectedPlan(plan)}
               >
                 <View style={s.planHeader}>
-                  <Text style={s.planPrice}>₹{plan.price}</Text>
-                  <View style={s.planTag}><Text style={s.planTagText}>Validity: {plan.validity}</Text></View>
+                  <Text style={[s.planPrice, { color: textClr }]}>₹{plan.price}</Text>
+                  <View style={[s.planTag, { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' }]}><Text style={[s.planTagText, { color: textMuted }]}>Validity: {plan.validity}</Text></View>
                 </View>
-                <Text style={s.planData}>{plan.data}</Text>
-                <Text style={s.planDesc}>{plan.desc}</Text>
+                <Text style={[s.planData, { color: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]}>{plan.data}</Text>
+                <Text style={[s.planDesc, { color: textMuted }]}>{plan.desc}</Text>
               </TouchableOpacity>
             ))}
           </>
@@ -83,13 +91,13 @@ export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRechar
 
       {/* Footer Payment */}
       {selectedPlan && (
-        <View style={s.footer}>
+        <View style={[s.footer, { backgroundColor: cardBg, borderTopColor: isDarkMode ? '#333' : '#EEE' }]}>
           <View style={s.secureRow}>
-            <ShieldCheck color={SUCCESS_GREEN} size={16} />
-            <Text style={s.secureText}>Guaranteed secure by Paytm AI</Text>
+            <ShieldCheck color={isDarkMode ? '#FFFFFF' : SUCCESS_GREEN} size={16} />
+            <Text style={[s.secureText, { color: isDarkMode ? '#AAA' : SUCCESS_GREEN }]}>Guaranteed secure by Paytm AI</Text>
           </View>
-          <TouchableOpacity 
-            style={s.payBtn} 
+          <TouchableOpacity
+            style={[s.payBtn, { backgroundColor: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]}
             onPress={() => onRecharge(number, selectedPlan.price)}
           >
             <Text style={s.payBtnText}>Pay ₹{selectedPlan.price} ExpressLY</Text>

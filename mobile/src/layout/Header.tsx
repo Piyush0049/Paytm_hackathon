@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, isDark
   const paytmLogo = require('../../assets/app-logo.png');
 
   return (
-    <View style={[s.topBarReal, { backgroundColor: isDarkMode ? '#0D0D0D' : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
+    <View style={[s.topBarReal, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
       <View style={s.topBarLeft}>
         <TouchableOpacity style={s.userIconReal} onPress={onProfilePress}>
           <Text style={s.userIconInit}>{initials}</Text>

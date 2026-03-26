@@ -51,8 +51,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
     }
   };
 
-  const bgStyle = { backgroundColor: isDarkMode ? '#0D0D0D' : '#F0F3F8' };
-  const cardStyle = { backgroundColor: isDarkMode ? '#1A1A2E' : WHITE };
+  const bgStyle = { backgroundColor: isDarkMode ? '#121212' : '#F0F3F8' };
+  const cardStyle = { backgroundColor: isDarkMode ? '#1E1E1E' : WHITE };
   const textStyle = { color: isDarkMode ? DARK_TEXT : '#1A202C' };
   const subTextStyle = { color: isDarkMode ? DARK_TEXT_MUTED : '#718096' };
   const dividerStyle = { backgroundColor: isDarkMode ? '#2D3748' : '#EDF2F7' };
@@ -60,7 +60,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
   return (
     <ScrollView style={[s.screen, bgStyle]} showsVerticalScrollIndicator={false} bounces={false}>
       {/* Background Banner extending from Header */}
-      <View style={[s.blueBanner, { backgroundColor: isDarkMode ? '#0D0D0D' : PAYTM_BLUE }]} />
+      <View style={[s.blueBanner, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE }]} />
 
       <View style={s.homeContent}>
         {/* UPI MONEY TRANSFER CARD */}
@@ -69,14 +69,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {upiActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => a.sub ? setSubScreen(a.sub) : onAction(a.id)}>
-                <View style={[s.actionIconDark, { backgroundColor: isDarkMode ? '#1C2951' : a.bg }]}>
-                  <a.icon size={28} color={WHITE} />
+                <View style={[s.actionIconDark, { backgroundColor: isDarkMode ? '#2369B0' : a.bg }]}>
+                  <a.icon size={28} color={isDarkMode ? '#FFFFFF' : WHITE} />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
-          <View style={[s.upiIdStrip, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}>
+          <View style={[s.upiIdStrip, { backgroundColor: isDarkMode ? '#333333' : '#EBF8FF' }]}>
             <Text style={[s.upiIdText, { color: isDarkMode ? WHITE : PAYTM_BLUE }]}>Your UPI ID: {balance?.upi_id || 'Not Set'}</Text>
             <TouchableOpacity><Text style={[s.upiIdCopy, { color: isDarkMode ? PAYTM_LIGHT_BLUE : '#002E6E' }]}>Copy</Text></TouchableOpacity>
           </View>
@@ -86,15 +86,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
         <View style={[s.sectionBlock, cardStyle, { paddingVertical: 12 }]}>
           <View style={s.actionGrid}>
             <TouchableOpacity style={s.myPaytmItem} onPress={() => setSubScreen('history')}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}><History size={24} color={isDarkMode ? '#5B9BFF' : PAYTM_BLUE} /></View>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#EBF8FF' }]}><History size={24} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} /></View>
               <Text style={[s.actionLabel, textStyle]}>{'Balance &\nHistory'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.myPaytmItem}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}><Wallet size={24} color={isDarkMode ? '#5B9BFF' : PAYTM_BLUE} /></View>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#EBF8FF' }]}><Wallet size={24} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} /></View>
               <Text style={[s.actionLabel, textStyle]}>{'Paytm\nWallet'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.myPaytmItem}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}><Landmark size={24} color={isDarkMode ? '#5B9BFF' : PAYTM_BLUE} /></View>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#EBF8FF' }]}><Landmark size={24} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} /></View>
               <Text style={[s.actionLabel, textStyle]}>{'Paytm Bank\nA/c'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.myPaytmItem}>
@@ -105,18 +105,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
         </View>
 
         {/* PAYTM AI VOICEGUARD SHIELD */}
-        <TouchableOpacity style={s.aiProtectionCard} onPress={() => onAction('voiceguard')} activeOpacity={0.9}>
+        <TouchableOpacity style={isDarkMode ? s.aiProtectionCard : s.aiProtectionCardLight} onPress={() => onAction('voiceguard')} activeOpacity={0.9}>
           <View style={s.aiProtectionInner}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <View style={[s.aiShieldIcon, { backgroundColor: balance?.voice_enrolled ? '#E8F5E9' : '#FFF3E0' }]}>
                 {balance?.voice_enrolled ? <ShieldCheck size={26} color="#21C17C" /> : <ShieldAlert size={26} color="#FF9800" />}
               </View>
               <View style={{ marginLeft: 14 }}>
-                <Text style={s.aiText}>Paytm VoiceGuard AI</Text>
-                <Text style={s.aiSubText}>{balance?.voice_enrolled ? 'Active • 100% Secured' : 'Tap to enable Voice Biometrics'}</Text>
+                <Text style={[s.aiText, { color: isDarkMode ? WHITE : '#111' }]}>Paytm VoiceGuard AI</Text>
+                <Text style={[s.aiSubText, { color: isDarkMode ? '#AAA' : '#555' }]}>{balance?.voice_enrolled ? 'Active • 100% Secured' : 'Tap to enable Voice Biometrics'}</Text>
               </View>
             </View>
-            <ChevronRightIcon color="#FFF" />
+            <ChevronRightIcon color={isDarkMode ? "#FFF" : "#888"} />
           </View>
         </TouchableOpacity>
 
@@ -128,8 +128,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {rechargeActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => a.sub ? setSubScreen(a.sub) : onAction(a.id)}>
-                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#F5F7FA' }]}>
-                  <a.icon size={26} color={a.color} />
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#F5F7FA' }]}>
+                  <a.icon size={26} color={isDarkMode ? '#FFFFFF' : a.color} />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
               </TouchableOpacity>
@@ -161,8 +161,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {loanActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => onAction(a.id)}>
-                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#F5F7FA' }]}>
-                  <a.icon size={26} color="#00BAF2" />
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#F5F7FA' }]}>
+                  <a.icon size={26} color={isDarkMode ? '#FFFFFF' : "#00BAF2"} />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
               </TouchableOpacity>
@@ -176,8 +176,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {travelActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => onAction(a.id)}>
-                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#F5F7FA' }]}>
-                  <a.icon size={26} color="#FF9800" />
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#F5F7FA' }]}>
+                  <a.icon size={26} color={isDarkMode ? '#FFFFFF' : "#FF9800"} />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
               </TouchableOpacity>
@@ -219,23 +219,24 @@ const s = StyleSheet.create({
   screen: { flex: 1 },
   blueBanner: { height: 140, width: '100%', position: 'absolute', top: 0, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
   homeContent: { flex: 1, paddingHorizontal: 12, paddingTop: 16 },
-  
+
   sectionBlock: { borderRadius: 16, marginBottom: 16, elevation: 1, overflow: 'hidden' },
   sectionHeader: { fontSize: 16, fontFamily: fonts.bold, marginTop: 16, marginBottom: 12 },
   sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 },
-  
+
   actionGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 4, paddingBottom: 8 },
   actionItem: { width: '25%', alignItems: 'center', marginBottom: 16, paddingHorizontal: 4 },
   myPaytmItem: { width: '25%', alignItems: 'center' },
   actionIconDark: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   actionIconLight: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   actionLabel: { fontSize: 11, fontFamily: fonts.semiBold, textAlign: 'center', lineHeight: 14 },
-  
+
   upiIdStrip: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 10, marginHorizontal: 16, marginBottom: 16, borderRadius: 8 },
   upiIdText: { fontSize: 12, fontFamily: fonts.semiBold, marginRight: 8 },
   upiIdCopy: { fontSize: 12, fontFamily: fonts.bold },
 
   aiProtectionCard: { backgroundColor: '#111', borderRadius: 16, marginBottom: 16, elevation: 4, overflow: 'hidden' },
+  aiProtectionCardLight: { backgroundColor: WHITE, borderRadius: 16, marginBottom: 16, elevation: 0, overflow: 'hidden' },
   aiProtectionInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 18 },
   aiShieldIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   aiText: { color: WHITE, fontFamily: fonts.bold, fontSize: 15 },

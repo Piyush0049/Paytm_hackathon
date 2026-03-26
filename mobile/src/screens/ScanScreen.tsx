@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, useColorScheme } from 'react-native';
 import { ChevronLeft, Camera as CameraIcon, Image as ImageIcon, Zap, ShieldCheck } from 'lucide-react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { PAYTM_BLUE, WHITE, SUCCESS_GREEN, fonts } from '../styles/theme';
@@ -8,7 +8,7 @@ const { width, height } = Dimensions.get('window');
 
 interface ScanScreenProps {
   onBack: () => void;
-  onScan: (data: {id: string, name: string}) => void;
+  onScan: (data: { id: string, name: string }) => void;
   token: string | null;
   backendUrl: string;
 }
@@ -16,6 +16,7 @@ interface ScanScreenProps {
 export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, backendUrl }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
+  const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -36,11 +37,11 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
         upiId = decodeURIComponent(paMatch[1]);
       }
     }
-    
+
     // Verify against backend
     try {
       const res = await fetch(`${backendUrl}/user/verify-upi?upi_id=${encodeURIComponent(upiId)}`, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
           'Bypass-Tunnel-Reminder': 'true'
         }
@@ -63,9 +64,9 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
 
   if (!permission.granted) {
     return (
-      <View style={s.permissionContainer}>
-        <Text style={s.permissionText}>We need your permission to show the camera</Text>
-        <TouchableOpacity style={s.permissionBtn} onPress={requestPermission}>
+      <View style={[s.permissionContainer, { backgroundColor: isDarkMode ? '#121212' : '#F5F7FA' }]}>
+        <Text style={[s.permissionText, { color: isDarkMode ? '#FFF' : '#333' }]}>We need your permission to show the camera</Text>
+        <TouchableOpacity style={[s.permissionBtn, { backgroundColor: isDarkMode ? '#1A67B8' : PAYTM_BLUE }]} onPress={requestPermission}>
           <Text style={s.permissionBtnText}>Grant Permission</Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.cancelBtn} onPress={onBack}>
@@ -77,8 +78,8 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
 
   return (
     <View style={s.container}>
-      <CameraView 
-        style={StyleSheet.absoluteFillObject} 
+      <CameraView
+        style={StyleSheet.absoluteFillObject}
         facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
         barcodeScannerSettings={{
@@ -155,7 +156,7 @@ const s = StyleSheet.create({
   actionLabel: { color: WHITE, fontSize: 12, fontFamily: fonts.medium, marginTop: 8 },
   footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: WHITE, width: '100%' },
   footerText: { color: '#444', fontSize: 12, fontFamily: fonts.medium, marginLeft: 8 },
-  
+
   permissionContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA', padding: 20 },
   permissionText: { fontSize: 16, fontFamily: fonts.medium, textAlign: 'center', marginBottom: 20, color: '#333' },
   permissionBtn: { backgroundColor: PAYTM_BLUE, paddingHorizontal: 24, paddingVertical: 14, borderRadius: 12, marginBottom: 16, width: '100%', alignItems: 'center' },

@@ -20,23 +20,23 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, setShow
   ];
 
   return (
-    <View style={[s.tabBarReal, { backgroundColor: isDarkMode ? '#0D0D0D' : WHITE, borderTopColor: isDarkMode ? '#1A1A2E' : '#EEE' }]}>
+    <View style={[s.tabBarReal, { backgroundColor: isDarkMode ? '#121212' : WHITE, borderTopColor: isDarkMode ? '#2A2A2A' : '#EEE' }]}>
       {tabs.map((tab) => (
-        <TouchableOpacity 
-          key={tab.id} 
-          style={s.tabReal} 
-          onPress={() => tab.id === 'voice' ? setShowVoicePay(true) : setActiveTab(tab.id)} 
+        <TouchableOpacity
+          key={tab.id}
+          style={s.tabReal}
+          onPress={() => tab.id === 'voice' ? setShowVoicePay(true) : setActiveTab(tab.id)}
           activeOpacity={0.8}
         >
           {tab.id === 'voice' ? (
             <View style={s.voiceFabRealCenter}>
               <View style={s.voiceFabReal}><Mic size={28} color="#FFF" /></View>
-              <Text style={s.voiceFabLabel}>Voice</Text>
+              {/* <Text style={s.voiceFabLabel}>Voice</Text> */}
             </View>
           ) : (
             <View style={s.tabContentReal}>
-              <tab.icon size={24} color={activeTab === tab.id ? PAYTM_BLUE : '#888'} />
-              <Text style={[s.tabLabelReal, activeTab === tab.id && { color: PAYTM_BLUE, fontWeight: '700' }]}>
+              <tab.icon size={24} color={activeTab === tab.id ? PAYTM_LIGHT_BLUE : '#888'} />
+              <Text style={[s.tabLabelReal, activeTab === tab.id && { color: PAYTM_LIGHT_BLUE, fontWeight: '700' }]}>
                 {tab.label}
               </Text>
             </View>
@@ -48,29 +48,29 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, setShow
 };
 
 const s = StyleSheet.create({
-  tabBarReal: { 
-    flexDirection: 'row', 
-    backgroundColor: WHITE, 
-    height: 80, 
-    position: 'absolute', 
-    bottom: 0, 
-    left: 0, 
-    right: 0, 
-    borderTopWidth: 1, 
-    borderTopColor: '#EEE', 
-    paddingBottom: Platform.OS === 'ios' ? 24 : 0 
+  tabBarReal: {
+    flexDirection: 'row',
+    backgroundColor: WHITE,
+    height: 80,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    borderTopColor: '#EEE',
+    paddingBottom: Platform.OS === 'ios' ? 24 : 0
   },
   tabReal: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   tabContentReal: { alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   tabLabelReal: { fontSize: 10, color: '#888', marginTop: 4, fontFamily: fonts.medium },
   voiceFabRealCenter: { position: 'absolute', top: -24, alignItems: 'center' },
-  voiceFabReal: { 
-    width: 62, 
-    height: 62, 
-    borderRadius: 31, 
-    backgroundColor: PAYTM_LIGHT_BLUE, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+  voiceFabReal: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    backgroundColor: PAYTM_LIGHT_BLUE,
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 8,
     shadowColor: PAYTM_LIGHT_BLUE,
     shadowOpacity: 0.5,

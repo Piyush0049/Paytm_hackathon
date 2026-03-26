@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator, StatusBar, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator, StatusBar, Image, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ShieldCheck, HelpCircle, X } from 'lucide-react-native';
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, SUCCESS_GREEN, WHITE, fonts } from '../styles/theme';
@@ -27,10 +27,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   authLoading, handleAuth
 }) => {
   const paytmLogo = require('../../assets/paytm_logo.png');
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  const bg = isDarkMode ? '#121212' : WHITE;
+  const textClr = isDarkMode ? '#FFFFFF' : '#111';
+  const textMuted = isDarkMode ? '#AAAAAA' : '#666';
 
   return (
-    <SafeAreaView style={s.authSafe} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor={WHITE} />
+    <SafeAreaView style={[s.authSafe, { backgroundColor: bg }]} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={bg} />
 
       <View style={s.cleanAuthHeader}>
         <Image
@@ -41,8 +47,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
       <ScrollView contentContainerStyle={s.authScrollContent} bounces={false}>
         <View style={s.authWelcomeBlock}>
-          <Text style={s.authTitle}>{authMode === 'login' ? 'Login' : 'Create Account'}</Text>
-          <Text style={s.authSub}>Welcome to the future of voice payments</Text>
+          <Text style={[s.authTitle, { color: textClr }]}>{authMode === 'login' ? 'Login' : 'Create Account'}</Text>
+          <Text style={[s.authSub, { color: textMuted }]}>Welcome to the future of voice payments</Text>
         </View>
 
         <View style={s.authFormContainer}>
@@ -50,28 +56,28 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             <>
               {authMode === 'signup' && (
                 <View style={s.inputContainer}>
-                  <Text style={s.inputLabel}>Full Name</Text>
-                  <TextInput style={s.premiumInput} placeholder="Enter your name" placeholderTextColor="#AAA" value={authName} onChangeText={setAuthName} />
+                  <Text style={[s.inputLabel, { color: textMuted }]}>Full Name</Text>
+                  <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="Enter your name" placeholderTextColor="#AAA" value={authName} onChangeText={setAuthName} />
                 </View>
               )}
               <View style={s.inputContainer}>
-                <Text style={s.inputLabel}>Email Address</Text>
-                <TextInput style={s.premiumInput} placeholder="name@email.com" placeholderTextColor="#AAA" keyboardType="email-address" autoCapitalize="none" value={authEmail} onChangeText={setAuthEmail} />
+                <Text style={[s.inputLabel, { color: textMuted }]}>Email Address</Text>
+                <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="name@email.com" placeholderTextColor="#AAA" keyboardType="email-address" autoCapitalize="none" value={authEmail} onChangeText={setAuthEmail} />
               </View>
               <View style={s.inputContainer}>
-                <Text style={s.inputLabel}>Password</Text>
-                <TextInput style={s.premiumInput} placeholder="••••••••" placeholderTextColor="#AAA" secureTextEntry value={authPassword} onChangeText={setAuthPassword} />
+                <Text style={[s.inputLabel, { color: textMuted }]}>Password</Text>
+                <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="••••••••" placeholderTextColor="#AAA" secureTextEntry value={authPassword} onChangeText={setAuthPassword} />
               </View>
             </>
           ) : (
             <View style={s.otpAuthContainer}>
-              <Text style={s.otpAuthTitle}>Enter 4-digit OTP</Text>
-              <Text style={s.otpAuthSub}>Sent to {authEmail}</Text>
-              <TextInput style={s.otpAuthInput} placeholder="0 0 0 0" placeholderTextColor="#EEE" keyboardType="number-pad" value={authOtp} onChangeText={setAuthOtp} maxLength={4} autoFocus />
+              <Text style={[s.otpAuthTitle, { color: textClr }]}>Enter 4-digit OTP</Text>
+              <Text style={[s.otpAuthSub, { color: textMuted }]}>Sent to {authEmail}</Text>
+              <TextInput style={[s.otpAuthInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: isDarkMode ? '#FFF' : PAYTM_BLUE, borderColor: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]} placeholder="0 0 0 0" placeholderTextColor="#555" keyboardType="number-pad" value={authOtp} onChangeText={setAuthOtp} maxLength={4} autoFocus />
             </View>
           )}
 
-          <TouchableOpacity style={s.actionBtnAuth} onPress={handleAuth} activeOpacity={0.8}>
+          <TouchableOpacity style={[s.actionBtnAuth, { backgroundColor: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]} onPress={handleAuth} activeOpacity={0.8}>
             {authLoading ? <ActivityIndicator color={WHITE} /> : (
               <Text style={s.actionBtnTextAuth}>
                 {!showOtpField ? 'Proceed Securely' : (authMode === 'login' ? 'Verify & Login' : 'Verify & Claim ₹1,000')}
@@ -80,15 +86,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setShowOtpField(false); setAuthOtp(''); }} style={s.switchAuthBtn}>
-            <Text style={s.switchAuthText}>{authMode === 'login' ? "New to Paytm? Create an account" : "Already have an account? Login"}</Text>
+            <Text style={[s.switchAuthText, { color: isDarkMode ? '#1A67B8' : PAYTM_BLUE }]}>{authMode === 'login' ? "New to Paytm? Create an account" : "Already have an account? Login"}</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={s.authTrustBlock}>
-          <ShieldCheck size={28} color={SUCCESS_GREEN} />
+        <View style={[s.authTrustBlock, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F0F9F4' }]}>
+          <ShieldCheck size={28} color={isDarkMode ? '#FFFFFF' : SUCCESS_GREEN} />
           <View style={{ marginLeft: 12 }}>
-            <Text style={s.trustTitle}>100% Secure & AI Protected</Text>
-            <Text style={s.trustSub}>Your voice is your unique security key.</Text>
+            <Text style={[s.trustTitle, { color: isDarkMode ? '#21C17C' : '#1A531B' }]}>100% Secure & AI Protected</Text>
+            <Text style={[s.trustSub, { color: isDarkMode ? '#AAA' : '#1A531B' }]}>Your voice is your unique security key.</Text>
           </View>
         </View>
       </ScrollView>

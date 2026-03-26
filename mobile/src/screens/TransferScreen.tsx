@@ -101,7 +101,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
         {/* Sticky Pay Button */}
         <View style={[s.footer, { backgroundColor: bg, borderTopColor: isDarkMode ? '#333' : '#E0E0E0' }]}>
           <TouchableOpacity
-            style={[s.payBtn, (!recipient || !amount) && s.payBtnDisabled]}
+            style={[s.payBtn, { backgroundColor: isDarkMode ? '#2596be' : PAYTM_BLUE }, (!recipient || !amount) && s.payBtnDisabled]}
             onPress={handlePayPress}
             disabled={!recipient || !amount}
           >
@@ -120,7 +120,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
             </TouchableOpacity>
 
             {/* Lock Icon */}
-            <View style={s.modalLockCircle}>
+            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? '#2596be' : PAYTM_BLUE }]}>
               <Lock size={32} color={WHITE} />
             </View>
 
@@ -147,7 +147,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
 
             {/* Confirm Button */}
             <TouchableOpacity
-              style={[s.confirmBtn, !password && { backgroundColor: '#A0AEC0' }]}
+              style={[s.confirmBtn, { backgroundColor: isDarkMode ? '#2596be' : PAYTM_BLUE }, !password && { backgroundColor: '#A0AEC0' }]}
               onPress={handleConfirmPayment}
               disabled={!password}
             >
