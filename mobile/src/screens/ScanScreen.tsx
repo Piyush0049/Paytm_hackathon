@@ -10,9 +10,10 @@ interface ScanScreenProps {
   onBack: () => void;
   onScan: (data: {id: string, name: string}) => void;
   token: string | null;
+  backendUrl: string;
 }
 
-export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token }) => {
+export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, backendUrl }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 
@@ -38,13 +39,18 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token })
     
     // Verify against backend
     try {
-      const res = await fetch(`http://192.168.1.6:8000/user/verify-upi?upi_id=${encodeURIComponent(upiId)}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(`${backendUrl}/user/verify-upi?upi_id=${encodeURIComponent(upiId)}`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Bypass-Tunnel-Reminder': 'true'
+        }
       });
       if (!res.ok) {
         throw new Error('User not found!');
       }
-      const val = await res.json();
+      const rawTxt = await res.text();
+      let val: any;
+      try { val = JSON.parse(rawTxt); } catch { throw new Error('Invalid server response'); }
       onScan({ id: upiId, name: val.name });
     } catch (err: any) {
       import('react-native').then(rn => rn.Alert.alert('Scan Failed', 'This QR code is invalid or the user does not exist.', [{ text: 'Try Again', onPress: () => setScanned(false) }]));

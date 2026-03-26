@@ -152,3 +152,25 @@ async def login(request: Request):
     await cols.otps.delete_one({"email": identifier})
     token = create_access_token({"sub": user["user_id"]})
     return {"status": "success", "token": token, "user_id": user["user_id"], "name": user["name"]}
+
+# ─────────────────────── VERIFY PASSWORD ───────────────────────
+from fastapi import Depends
+from auth_utils import get_current_user
+
+@router.post("/verify-password")
+async def verify_password_endpoint(request: Request, user=Depends(get_current_user)):
+    """Verify the user's password and return balance data if correct."""
+    body = await request.json()
+    password = body.get("password", "")
+
+    hashed = user.get("password", "")
+    if not hashed or not verify_password(password, hashed):
+        raise HTTPException(403, "Incorrect password")
+
+    return {
+        "verified": True,
+        "balance": user.get("balance", 0),
+        "name": user.get("name"),
+        "upi_id": user.get("upi_id"),
+    }
+

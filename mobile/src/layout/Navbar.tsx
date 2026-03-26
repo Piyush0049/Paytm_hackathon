@@ -20,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, setShow
   ];
 
   return (
-    <View style={[s.tabBarReal, { backgroundColor: isDarkMode ? '#1E1E1E' : WHITE, borderTopColor: isDarkMode ? '#333' : '#EEE' }]}>
+    <View style={[s.tabBarReal, { backgroundColor: isDarkMode ? '#0D0D0D' : WHITE, borderTopColor: isDarkMode ? '#1A1A2E' : '#EEE' }]}>
       {tabs.map((tab) => (
         <TouchableOpacity 
           key={tab.id} 

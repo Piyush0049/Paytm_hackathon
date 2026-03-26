@@ -21,7 +21,17 @@ import { SuccessOverlay } from './src/components/SuccessOverlay';
 import { QRModal } from './src/components/QRModal';
 import { MockService } from './src/services/MockService';
 
-const BACKEND = 'http://192.168.1.6:8000';
+// ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
+// Use the public tunnel unconditionally for off-network friends.
+const BACKEND_LOCAL = 'http://192.168.1.6:8000';
+const BACKEND_TUNNEL = 'https://paytm-voiceguard-new-25.loca.lt'; // tunnel URL for iOS
+
+const BACKEND = BACKEND_TUNNEL; // Use tunnel for ALL devices so friends can access it!
+
+const safeJson = async (res: Response) => {
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch { return { detail: 'Invalid server response' }; }
+};
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -89,10 +99,16 @@ export default function App() {
   const authFetch = async (endpoint: string, tkn?: string) => {
     const t = tkn || token;
     const res = await fetch(`${BACKEND}${endpoint}`, {
-      headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' }
+      headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' }
     });
-    if (res.status === 401) { setToken(null); throw new Error('Session expired'); }
-    return res.json();
+    if (res.status === 401) {
+      await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem('authTime');
+      setToken(null);
+      throw new Error('Session expired');
+    }
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { throw new Error('Invalid response from server'); }
   };
 
   const loadAllData = async () => {
@@ -122,14 +138,14 @@ export default function App() {
       if (!showOtpField) {
         const res = await fetch(`${BACKEND}/auth/send-otp`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
           body: JSON.stringify({ 
             email: authEmail.toLowerCase().trim(), 
             password: authPassword, 
             is_login: authMode === 'login' 
           })
         });
-        const data = await res.json();
+        const data = await safeJson(res);
         if (!res.ok) throw new Error(data.detail || 'Failed to send OTP');
         setShowOtpField(true);
         setSuccessMsg({ visible: true, title: 'OTP Sent', sub: data.message || 'Check your email' });
@@ -140,10 +156,10 @@ export default function App() {
           : { email: authEmail.toLowerCase().trim(), password: authPassword, otp: authOtp };
         const res = await fetch(`${BACKEND}${endpoint}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
           body: JSON.stringify(body)
         });
-        const data = await res.json();
+        const data = await safeJson(res);
         if (!res.ok) throw new Error(data.detail || 'Auth failed');
         setToken(data.token);
         await AsyncStorage.setItem('authToken', data.token);
@@ -153,18 +169,18 @@ export default function App() {
     setAuthLoading(false);
   };
 
-  const handleTransfer = async (amount: number, recipient: string) => {
+  const handleTransfer = async (amount: number, recipient: string, password: string) => {
     setAuthLoading(true);
     try {
       const res = await fetch(`${BACKEND}/payment/upi`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipient, amount })
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+        body: JSON.stringify({ recipient, amount, password })
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (!res.ok) throw new Error(data.detail || 'Transfer failed');
       setSubScreen(null);
-      setSuccessMsg({ visible: true, title: 'Money Sent', sub: `₹${amount} sent to ${recipient}` });
+      setSuccessMsg({ visible: true, title: 'Money Sent', sub: `₹${amount} sent to ${data.recipient || recipient}` });
       loadAllData();
     } catch (e: any) { Alert.alert('Error', e.message); }
     setAuthLoading(false);
@@ -193,7 +209,7 @@ export default function App() {
           headers: { 'Authorization': `Bearer ${token}` },
           body: formData
         });
-        const data = await res.json();
+        const data = await safeJson(res);
         setShowVoicePay(false);
         setIsVoiceProcessing(false);
         if (!res.ok) throw new Error(data.detail || 'Voice payment failed');
@@ -220,7 +236,7 @@ export default function App() {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (!res.ok) throw new Error(data.detail || 'Recharge failed');
       setSuccessMsg({ visible: true, title: 'Recharge Done', sub: `₹${amt} credited to ${num}` });
       loadAllData();
@@ -239,7 +255,7 @@ export default function App() {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (!res.ok) throw new Error(data.detail || 'Enrollment failed');
       setSuccessMsg({ visible: true, title: 'Voice Enrolled', sub: 'Your voice is your secure key' });
       loadAllData();
@@ -275,23 +291,25 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={[s.container, { backgroundColor: isDarkMode ? '#121212' : BACKGROUND_COLOR }]} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={[s.container, { backgroundColor: isDarkMode ? '#0D0D0D' : BACKGROUND_COLOR }]} edges={['top', 'left', 'right']}>
         <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={isDarkMode ? '#000' : PAYTM_BLUE} />
-        {!subScreen && <Header userName={profile?.name || 'User'} onProfilePress={() => setShowUserQR(true)} isDarkMode={isDarkMode} />}
+        {subScreen !== 'scan' && <Header userName={profile?.name || 'User'} onProfilePress={() => setShowUserQR(true)} isDarkMode={isDarkMode} />}
 
         {activeTab === 'home' && (
           subScreen === 'scan' ? <ScanScreen 
             onBack={() => setSubScreen(null)} 
             onScan={(data) => { setScannedRecipient(data); setSubScreen('transfer'); }} 
             token={token}
+            backendUrl={BACKEND}
           /> :
           subScreen === 'transfer' ? <TransferScreen 
             onBack={() => { setSubScreen(null); setScannedRecipient(null); }} 
-            onTransfer={(a, r) => { setScannedRecipient(null); handleTransfer(a, r); }} 
+            onTransfer={(a, r, p) => { setScannedRecipient(null); handleTransfer(a, r, p); }} 
             initialRecipient={scannedRecipient || undefined}
             isDarkMode={isDarkMode}
           /> :
           subScreen === 'recharge' ? <RechargeScreen onBack={() => setSubScreen(null)} onRecharge={(n, a) => { setSubScreen(null); handleRecharge(n, a); }} /> :
+          subScreen === 'history' ? <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} /> :
           <HomeScreen
             balance={balance}
             transactions={transactions}
@@ -308,7 +326,7 @@ export default function App() {
             }}
           />
         )}
-        {activeTab === 'history' && <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} />}
+        {activeTab === 'history' && <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} token={token} backendUrl={BACKEND} />}
         {activeTab === 'notifs' && <AlertsScreen notifications={notifications} isDarkMode={isDarkMode} />}
         {activeTab === 'profile' && <ProfileScreen profile={profile} logout={logout} onEnroll={handleEnrollVoice} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
 

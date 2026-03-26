@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { ArrowLeft, User, ShieldCheck } from 'lucide-react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Modal } from 'react-native';
+import { ArrowLeft, ShieldCheck, Lock, Eye, EyeOff, X } from 'lucide-react-native';
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
 
 interface TransferScreenProps {
   onBack: () => void;
-  onTransfer: (amount: number, recipient: string) => void;
+  onTransfer: (amount: number, recipient: string, password: string) => void;
   initialRecipient?: { id: string; name: string };
   isDarkMode?: boolean;
 }
@@ -14,15 +14,25 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
   const [recipient, setRecipient] = useState(initialRecipient?.id || '');
   const [recipientName] = useState(initialRecipient?.name || 'Unknown Recipient');
   const [amount, setAmount] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const bg = isDarkMode ? DARK_BACKGROUND : '#F5F7FA';
   const surface = isDarkMode ? DARK_SURFACE : WHITE;
   const text = isDarkMode ? DARK_TEXT : '#111';
   const textMuted = isDarkMode ? DARK_TEXT_MUTED : '#666';
 
-  const handleSend = () => {
+  const handlePayPress = () => {
     if (!recipient || !amount) return;
-    onTransfer(parseFloat(amount), recipient);
+    setPassword('');
+    setShowPasswordModal(true);
+  };
+
+  const handleConfirmPayment = () => {
+    if (!password) return;
+    setShowPasswordModal(false);
+    onTransfer(parseFloat(amount), recipient, password);
   };
 
   return (
@@ -92,13 +102,66 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
         <View style={[s.footer, { backgroundColor: bg, borderTopColor: isDarkMode ? '#333' : '#E0E0E0' }]}>
           <TouchableOpacity
             style={[s.payBtn, (!recipient || !amount) && s.payBtnDisabled]}
-            onPress={handleSend}
+            onPress={handlePayPress}
             disabled={!recipient || !amount}
           >
             <Text style={s.payBtnText}>Pay ₹{amount || '0'}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* ─── Password Verification Modal ─── */}
+      <Modal visible={showPasswordModal} transparent animationType="slide">
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContainer, { backgroundColor: isDarkMode ? '#1E1E1E' : WHITE }]}>
+            {/* Close button */}
+            <TouchableOpacity style={s.modalClose} onPress={() => setShowPasswordModal(false)}>
+              <X size={22} color={textMuted} />
+            </TouchableOpacity>
+
+            {/* Lock Icon */}
+            <View style={s.modalLockCircle}>
+              <Lock size={32} color={WHITE} />
+            </View>
+
+            <Text style={[s.modalTitle, { color: text }]}>Confirm Payment</Text>
+            <Text style={[s.modalSubtitle, { color: textMuted }]}>
+              Enter your password to send ₹{amount} to {initialRecipient?.name || recipient}
+            </Text>
+
+            {/* Password Input */}
+            <View style={[s.passwordRow, { borderColor: isDarkMode ? '#444' : '#DDD' }]}>
+              <TextInput
+                style={[s.passwordInput, { color: text }]}
+                placeholder="Enter your password"
+                placeholderTextColor={isDarkMode ? '#666' : '#AAA'}
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                autoFocus
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={s.eyeBtn}>
+                {showPassword ? <EyeOff size={20} color={textMuted} /> : <Eye size={20} color={textMuted} />}
+              </TouchableOpacity>
+            </View>
+
+            {/* Confirm Button */}
+            <TouchableOpacity
+              style={[s.confirmBtn, !password && { backgroundColor: '#A0AEC0' }]}
+              onPress={handleConfirmPayment}
+              disabled={!password}
+            >
+              <ShieldCheck size={20} color={WHITE} style={{ marginRight: 8 }} />
+              <Text style={s.confirmBtnText}>Confirm & Pay ₹{amount}</Text>
+            </TouchableOpacity>
+
+            <View style={s.modalSecurityRow}>
+              <Lock size={12} color="#21C17C" />
+              <Text style={[s.modalSecurityText, { color: textMuted }]}>Secured by Paytm VoiceGuard AI</Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -132,4 +195,19 @@ const s = StyleSheet.create({
   payBtn: { backgroundColor: PAYTM_BLUE, paddingVertical: 18, borderRadius: 16, alignItems: 'center', elevation: 2 },
   payBtnDisabled: { backgroundColor: '#A0AEC0', elevation: 0 },
   payBtnText: { color: WHITE, fontSize: 16, fontFamily: fonts.bold },
+
+  // ─── Modal Styles ───
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
+  modalContainer: { borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 28, paddingBottom: 40, alignItems: 'center' },
+  modalClose: { position: 'absolute', top: 18, right: 18, padding: 6 },
+  modalLockCircle: { width: 68, height: 68, borderRadius: 34, backgroundColor: PAYTM_BLUE, justifyContent: 'center', alignItems: 'center', marginBottom: 18, elevation: 4 },
+  modalTitle: { fontSize: 20, fontFamily: fonts.bold, marginBottom: 8 },
+  modalSubtitle: { fontSize: 13, fontFamily: fonts.medium, textAlign: 'center', lineHeight: 20, marginBottom: 24, paddingHorizontal: 10 },
+  passwordRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderRadius: 14, width: '100%', paddingHorizontal: 16, marginBottom: 24 },
+  passwordInput: { flex: 1, fontSize: 16, fontFamily: fonts.medium, paddingVertical: 16 },
+  eyeBtn: { padding: 8 },
+  confirmBtn: { flexDirection: 'row', backgroundColor: PAYTM_BLUE, paddingVertical: 18, borderRadius: 16, alignItems: 'center', justifyContent: 'center', width: '100%', elevation: 3 },
+  confirmBtnText: { color: WHITE, fontSize: 16, fontFamily: fonts.bold },
+  modalSecurityRow: { flexDirection: 'row', alignItems: 'center', marginTop: 16 },
+  modalSecurityText: { fontSize: 11, fontFamily: fonts.medium, marginLeft: 6 },
 });

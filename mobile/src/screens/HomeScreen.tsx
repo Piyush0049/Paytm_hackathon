@@ -51,8 +51,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
     }
   };
 
-  const bgStyle = { backgroundColor: isDarkMode ? DARK_BACKGROUND : '#F0F3F8' };
-  const cardStyle = { backgroundColor: isDarkMode ? DARK_SURFACE : WHITE };
+  const bgStyle = { backgroundColor: isDarkMode ? '#0D0D0D' : '#F0F3F8' };
+  const cardStyle = { backgroundColor: isDarkMode ? '#1A1A2E' : WHITE };
   const textStyle = { color: isDarkMode ? DARK_TEXT : '#1A202C' };
   const subTextStyle = { color: isDarkMode ? DARK_TEXT_MUTED : '#718096' };
   const dividerStyle = { backgroundColor: isDarkMode ? '#2D3748' : '#EDF2F7' };
@@ -60,7 +60,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
   return (
     <ScrollView style={[s.screen, bgStyle]} showsVerticalScrollIndicator={false} bounces={false}>
       {/* Background Banner extending from Header */}
-      <View style={[s.blueBanner, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE }]} />
+      <View style={[s.blueBanner, { backgroundColor: isDarkMode ? '#0D0D0D' : PAYTM_BLUE }]} />
 
       <View style={s.homeContent}>
         {/* UPI MONEY TRANSFER CARD */}
@@ -69,14 +69,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {upiActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => a.sub ? setSubScreen(a.sub) : onAction(a.id)}>
-                <View style={[s.actionIconDark, { backgroundColor: a.bg }]}>
+                <View style={[s.actionIconDark, { backgroundColor: isDarkMode ? '#1C2951' : a.bg }]}>
                   <a.icon size={28} color={WHITE} />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
-          <View style={[s.upiIdStrip, { backgroundColor: isDarkMode ? '#2D3748' : '#EBF8FF' }]}>
+          <View style={[s.upiIdStrip, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}>
             <Text style={[s.upiIdText, { color: isDarkMode ? WHITE : PAYTM_BLUE }]}>Your UPI ID: {balance?.upi_id || 'Not Set'}</Text>
             <TouchableOpacity><Text style={[s.upiIdCopy, { color: isDarkMode ? PAYTM_LIGHT_BLUE : '#002E6E' }]}>Copy</Text></TouchableOpacity>
           </View>
@@ -86,20 +86,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
         <View style={[s.sectionBlock, cardStyle, { paddingVertical: 12 }]}>
           <View style={s.actionGrid}>
             <TouchableOpacity style={s.myPaytmItem} onPress={() => setSubScreen('history')}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#EBF8FF' }]}><History size={24} color={PAYTM_BLUE} /></View>
-              <Text style={[s.actionLabel, textStyle]}>Balance &\nHistory</Text>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}><History size={24} color={isDarkMode ? '#5B9BFF' : PAYTM_BLUE} /></View>
+              <Text style={[s.actionLabel, textStyle]}>{'Balance &\nHistory'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.myPaytmItem}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#EBF8FF' }]}><Wallet size={24} color={PAYTM_BLUE} /></View>
-              <Text style={[s.actionLabel, textStyle]}>Paytm\nWallet</Text>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}><Wallet size={24} color={isDarkMode ? '#5B9BFF' : PAYTM_BLUE} /></View>
+              <Text style={[s.actionLabel, textStyle]}>{'Paytm\nWallet'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.myPaytmItem}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#EBF8FF' }]}><Landmark size={24} color={PAYTM_BLUE} /></View>
-              <Text style={[s.actionLabel, textStyle]}>Paytm Bank\nA/c</Text>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#EBF8FF' }]}><Landmark size={24} color={isDarkMode ? '#5B9BFF' : PAYTM_BLUE} /></View>
+              <Text style={[s.actionLabel, textStyle]}>{'Paytm Bank\nA/c'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.myPaytmItem}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F3E8FF' }]}><PiggyBank size={24} color="#9C27B0" /></View>
-              <Text style={[s.actionLabel, textStyle]}>Personal\nLoan</Text>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2A1A3E' : '#F3E8FF' }]}><PiggyBank size={24} color={isDarkMode ? '#C77DFF' : '#9C27B0'} /></View>
+              <Text style={[s.actionLabel, textStyle]}>{'Personal\nLoan'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -128,7 +128,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {rechargeActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => a.sub ? setSubScreen(a.sub) : onAction(a.id)}>
-                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#F5F7FA' }]}>
                   <a.icon size={26} color={a.color} />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
@@ -139,14 +139,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
 
         {/* PROMO BANNERS */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.promoScroll} contentContainerStyle={s.promoContent}>
-          <View style={[s.promoBanner, { backgroundColor: '#E0F7FA' }]}>
+          <View style={[s.promoBanner, { backgroundColor: isDarkMode ? '#1A2332' : '#E0F7FA' }]}>
             <View style={s.promoTextWrap}>
               <Text style={[s.promoTitle, { color: '#006064' }]}>Get ₹100 Cashback</Text>
               <Text style={[s.promoSub, { color: '#00838F' }]}>On your next Mobile Recharge</Text>
             </View>
             <View style={[s.promoDecor, { backgroundColor: '#B2EBF2' }]} />
           </View>
-          <View style={[s.promoBanner, { backgroundColor: '#FCE4EC' }]}>
+          <View style={[s.promoBanner, { backgroundColor: isDarkMode ? '#2A1A32' : '#FCE4EC' }]}>
             <View style={s.promoTextWrap}>
               <Text style={[s.promoTitle, { color: '#880E4F' }]}>Paytm Postpaid</Text>
               <Text style={[s.promoSub, { color: '#AD1457' }]}>Buy now, Pay next month</Text>
@@ -161,7 +161,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {loanActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => onAction(a.id)}>
-                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#F5F7FA' }]}>
                   <a.icon size={26} color="#00BAF2" />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
@@ -176,7 +176,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           <View style={s.actionGrid}>
             {travelActions.map((a, i) => (
               <TouchableOpacity key={i} style={s.actionItem} onPress={() => onAction(a.id)}>
-                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#1C2951' : '#F5F7FA' }]}>
                   <a.icon size={26} color="#FF9800" />
                 </View>
                 <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>

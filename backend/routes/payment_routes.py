@@ -205,3 +205,118 @@ async def pay_bill(
         "created_at": datetime.utcnow()
     })
     return {"status": "success", "transaction_id": tx_id, "new_balance": new_bal}
+
+from pydantic import BaseModel
+from auth_utils import verify_password
+
+class UpiPaymentRequest(BaseModel):
+    recipient: str   # UPI ID of recipient
+    amount: float
+    password: str    # User's password for verification
+
+@router.post("/payment/upi")
+async def manual_upi_payment(req: UpiPaymentRequest, user=Depends(get_current_user)):
+    """
+    Secure UPI transfer with password verification.
+    Uses atomic $inc operations for safe balance updates on standalone MongoDB.
+    """
+    uid = user["user_id"]
+    amount = req.amount
+    recipient_upi = req.recipient
+
+    # ── Step 1: Verify password ──
+    hashed = user.get("password", "")
+    if not hashed or not verify_password(req.password, hashed):
+        raise HTTPException(403, "Incorrect password. Payment rejected.")
+
+    # ── Step 2: Validate amount ──
+    if amount <= 0:
+        raise HTTPException(400, "Amount must be greater than zero.")
+
+    if user.get("balance", 0) < amount:
+        raise HTTPException(400, "Insufficient balance")
+
+    # ── Step 3: Verify recipient exists by UPI ID ──
+    recipient_user = await cols.users.find_one({"upi_id": recipient_upi})
+    if not recipient_user:
+        raise HTTPException(404, "Recipient UPI ID not found")
+
+    # Self-transfer guard
+    if recipient_user["user_id"] == uid:
+        raise HTTPException(400, "Cannot transfer to yourself")
+
+    # ── Step 4: Atomic balance updates using $inc (works on standalone MongoDB) ──
+    # Debit sender (atomic)
+    sender_result = await cols.users.update_one(
+        {"user_id": uid, "balance": {"$gte": amount}},  # Double-check balance
+        {"$inc": {"balance": -round(amount, 2)}}
+    )
+    if sender_result.modified_count == 0:
+        raise HTTPException(400, "Insufficient balance or concurrent transaction")
+
+    # Credit receiver (atomic)
+    await cols.users.update_one(
+        {"user_id": recipient_user["user_id"]},
+        {"$inc": {"balance": round(amount, 2)}}
+    )
+
+    # Fetch updated sender balance
+    updated_sender = await cols.users.find_one({"user_id": uid})
+    sender_new_balance = round(updated_sender.get("balance", 0), 2)
+
+    # Fetch updated receiver balance for logging
+    updated_receiver = await cols.users.find_one({"user_id": recipient_user["user_id"]})
+    receiver_new_balance = round(updated_receiver.get("balance", 0), 2)
+
+    tx_id = f"UPI{int(time.time()*1000)}"
+
+    print(f"💸 TRANSFER: {user.get('name')} → {recipient_user.get('name')} | ₹{amount}")
+    print(f"   Sender balance: ₹{sender_new_balance} | Receiver balance: ₹{receiver_new_balance}")
+
+    # Sender transaction record
+    await cols.transactions.insert_one({
+        "id": tx_id, "type": "sent", "amount": amount,
+        "recipient": recipient_user.get("name", recipient_upi),
+        "memo": "UPI Transfer",
+        "category": "Transfer", "timestamp": datetime.utcnow(),
+        "status": "completed", "user_id": uid,
+        "verification_method": "password",
+        "biometric_score": 0, "risk_level": "low"
+    })
+
+    # Receiver transaction record
+    await cols.transactions.insert_one({
+        "id": tx_id + "R", "type": "received", "amount": amount,
+        "recipient": user.get("name", "Unknown"),
+        "memo": "UPI Transfer Received",
+        "category": "Transfer", "timestamp": datetime.utcnow(),
+        "status": "completed", "user_id": recipient_user["user_id"],
+        "verification_method": "password",
+        "biometric_score": 0, "risk_level": "low"
+    })
+
+    # Sender notification
+    await cols.notifications.insert_one({
+        "user_id": uid,
+        "title": f"Sent ₹{amount}",
+        "body": f"Payment to {recipient_user.get('name', recipient_upi)} via UPI",
+        "time": "Just now", "read": False, "type": "payment",
+        "created_at": datetime.utcnow()
+    })
+
+    # Receiver notification
+    await cols.notifications.insert_one({
+        "user_id": recipient_user["user_id"],
+        "title": f"Received ₹{amount}",
+        "body": f"Payment from {user.get('name', 'Someone')} via UPI",
+        "time": "Just now", "read": False, "type": "payment",
+        "created_at": datetime.utcnow()
+    })
+
+    return {
+        "status": "success",
+        "transaction_id": tx_id,
+        "amount": amount,
+        "recipient": recipient_user.get("name", recipient_upi),
+        "new_balance": sender_new_balance
+    }
