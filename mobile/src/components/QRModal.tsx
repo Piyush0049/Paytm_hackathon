@@ -176,17 +176,17 @@ const s = StyleSheet.create({
 
   scrollContent: { paddingHorizontal: 16, paddingBottom: 40 },
 
-  card: { borderRadius: 24, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 30, elevation: 4, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, marginBottom: 16 },
+  card: { borderRadius: 24, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 30, elevation: 0, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, marginBottom: 16 },
 
   userInfoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   avatarContainer: { marginRight: 14 },
-  avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#E0F2FE', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#BAE6FD' },
-  avatarText: { fontSize: 24, fontFamily: fonts.bold, color: PAYTM_LIGHT_BLUE },
+  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#E0F2FE', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#BAE6FD' },
+  avatarText: { fontSize: 20, fontFamily: fonts.bold, color: PAYTM_LIGHT_BLUE },
   userDetails: { flex: 1, justifyContent: 'center' },
   nameRow: { flexDirection: 'row', alignItems: 'center' },
-  name: { fontSize: 18, fontFamily: fonts.bold },
+  name: { fontSize: 16, fontFamily: fonts.bold },
   upiRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  upiId: { fontSize: 13, fontFamily: fonts.medium },
+  upiId: { fontSize: 12, fontFamily: fonts.medium },
   copyBtn: { padding: 4, marginLeft: 4 },
 
   infoBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, marginBottom: 24 },
@@ -219,11 +219,11 @@ const s = StyleSheet.create({
 
   settingsBlock: { borderRadius: 20, borderWidth: 1, padding: 20 },
   settingsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  settingsTitle: { fontSize: 18, fontFamily: fonts.bold },
+  settingsTitle: { fontSize: 16, fontFamily: fonts.bold },
 
   settingItem: { flexDirection: 'row', alignItems: 'center', paddingTop: 20 },
   settingIconBox: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginRight: 16 },
   settingTextCol: { flex: 1 },
-  settingItemTitle: { fontSize: 15, fontFamily: fonts.bold },
-  settingItemSub: { fontSize: 12, fontFamily: fonts.medium, marginTop: 2 },
+  settingItemTitle: { fontSize: 14, fontFamily: fonts.bold },
+  settingItemSub: { fontSize: 11, fontFamily: fonts.medium, marginTop: 2 },
 });

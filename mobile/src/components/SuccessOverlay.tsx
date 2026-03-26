@@ -47,7 +47,7 @@ export const SuccessOverlay: React.FC<SuccessOverlayProps> = ({ visible, message
 
 const s = StyleSheet.create({
   overlay: { position: 'absolute', top: 0, left: 0, width, height, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', zIndex: 9999 },
-  card: { backgroundColor: WHITE, padding: 40, borderRadius: 32, alignItems: 'center', width: '85%', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
+  card: { backgroundColor: WHITE, padding: 40, borderRadius: 32, alignItems: 'center', width: '85%', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 20, elevation: 0 },
   title: { fontSize: 22, fontFamily: fonts.bold, color: '#111', marginTop: 24, textAlign: 'center' },
   sub: { fontSize: 14, fontFamily: fonts.regular, color: '#666', marginTop: 8, textAlign: 'center' }
 });

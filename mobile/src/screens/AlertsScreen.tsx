@@ -33,7 +33,7 @@ const s = StyleSheet.create({
   screen: { flex: 1 },
   pageHeader: { padding: 24, paddingBottom: 10 },
   pageTitle: { fontSize: 18, fontFamily: fonts.bold },
-  notifCard: { borderRadius: 16, padding: 20, marginHorizontal: 16, marginBottom: 12, elevation: 1 },
+  notifCard: { borderRadius: 16, padding: 20, marginHorizontal: 16, marginBottom: 12, elevation: 0 },
   notifUnread: { borderLeftWidth: 4, borderLeftColor: PAYTM_LIGHT_BLUE },
   notifTitle: { fontSize: 14, fontFamily: fonts.bold, marginBottom: 4 },
   notifBody: { fontSize: 12, fontFamily: fonts.regular, marginBottom: 10 },

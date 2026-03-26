@@ -223,7 +223,7 @@ const s = StyleSheet.create({
   pageTitle: { fontSize: 18, fontFamily: fonts.bold },
 
   // ─── Balance Card ───
-  balanceCard: { marginHorizontal: 16, borderRadius: 20, padding: 24, marginBottom: 24, elevation: 6 },
+  balanceCard: { marginHorizontal: 16, borderRadius: 20, padding: 24, marginBottom: 24, elevation: 0 },
   balanceCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   balanceLockBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(33,193,124,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   balanceBadgeText: { color: '#21C17C', fontSize: 11, fontFamily: fonts.bold, marginLeft: 4 },
@@ -241,7 +241,7 @@ const s = StyleSheet.create({
   // ─── Transaction List ───
   txSection: { paddingHorizontal: 16 },
   txSectionTitle: { fontSize: 16, fontFamily: fonts.bold, marginBottom: 14 },
-  txCard: { padding: 16, marginBottom: 10, borderRadius: 16, flexDirection: 'row', alignItems: 'center', elevation: 1 },
+  txCard: { padding: 16, marginBottom: 10, borderRadius: 16, flexDirection: 'row', alignItems: 'center', elevation: 0 },
   txIconWrapper: { width: 42, height: 42, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
   txInfo: { flex: 1 },
   txRecipient: { fontSize: 14, fontFamily: fonts.bold },
@@ -255,11 +255,11 @@ const s = StyleSheet.create({
 
   // ─── Locked State ───
   lockedContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
-  lockedCard: { width: '100%', borderRadius: 24, padding: 36, alignItems: 'center', elevation: 4 },
+  lockedCard: { width: '100%', borderRadius: 24, padding: 36, alignItems: 'center', elevation: 0 },
   lockedIconCircle: { width: 88, height: 88, borderRadius: 44, justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
   lockedTitle: { fontSize: 20, fontFamily: fonts.bold, marginBottom: 8 },
   lockedSubtitle: { fontSize: 13, fontFamily: fonts.medium, textAlign: 'center', lineHeight: 20, marginBottom: 28 },
-  unlockBtn: { flexDirection: 'row', backgroundColor: PAYTM_BLUE, paddingVertical: 16, paddingHorizontal: 32, borderRadius: 16, alignItems: 'center', elevation: 3 },
+  unlockBtn: { flexDirection: 'row', backgroundColor: PAYTM_BLUE, paddingVertical: 16, paddingHorizontal: 32, borderRadius: 16, alignItems: 'center', elevation: 0 },
   unlockBtnText: { color: WHITE, fontSize: 15, fontFamily: fonts.bold },
 
   // ─── Modal ───
@@ -272,7 +272,7 @@ const s = StyleSheet.create({
   passwordRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderRadius: 14, width: '100%', paddingHorizontal: 16, marginBottom: 20 },
   passwordInput: { flex: 1, fontSize: 16, fontFamily: fonts.medium, paddingVertical: 16 },
   eyeBtn: { padding: 8 },
-  verifyBtn: { flexDirection: 'row', backgroundColor: PAYTM_BLUE, paddingVertical: 18, borderRadius: 16, alignItems: 'center', justifyContent: 'center', width: '100%', elevation: 3 },
+  verifyBtn: { flexDirection: 'row', backgroundColor: PAYTM_BLUE, paddingVertical: 18, borderRadius: 16, alignItems: 'center', justifyContent: 'center', width: '100%', elevation: 0 },
   verifyBtnText: { color: WHITE, fontSize: 16, fontFamily: fonts.bold },
   cancelLink: { paddingVertical: 14 },
   cancelText: { fontSize: 14, fontFamily: fonts.semiBold },

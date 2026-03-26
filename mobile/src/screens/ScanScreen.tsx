@@ -148,7 +148,7 @@ const s = StyleSheet.create({
   topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
   bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
   bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
-  scanLine: { width: '80%', height: 2, backgroundColor: PAYTM_BLUE, shadowColor: PAYTM_BLUE, shadowOpacity: 1, shadowRadius: 10, elevation: 5 },
+  scanLine: { width: '80%', height: 2, backgroundColor: PAYTM_BLUE, shadowColor: PAYTM_BLUE, shadowOpacity: 1, shadowRadius: 10, elevation: 0 },
   overlayBottom: { alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)' },
   hintText: { color: '#CCC', fontSize: 14, fontFamily: fonts.medium, textAlign: 'center', marginTop: 30, marginBottom: 30 },
   bottomActions: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', paddingBottom: 30 },

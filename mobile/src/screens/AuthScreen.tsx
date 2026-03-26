@@ -117,7 +117,7 @@ const s = StyleSheet.create({
   otpAuthTitle: { fontSize: 18, fontFamily: fonts.bold, color: '#111' },
   otpAuthSub: { fontSize: 12, fontFamily: fonts.regular, color: '#888', marginTop: 4 },
   otpAuthInput: { backgroundColor: '#F9FAFC', borderRadius: 16, padding: 20, fontSize: 32, fontFamily: fonts.bold, color: PAYTM_BLUE, letterSpacing: 10, textAlign: 'center', width: '90%', marginTop: 20, borderWidth: 2, borderColor: PAYTM_LIGHT_BLUE },
-  actionBtnAuth: { backgroundColor: PAYTM_LIGHT_BLUE, borderRadius: 14, padding: 16, alignItems: 'center', elevation: 5, shadowColor: PAYTM_LIGHT_BLUE, shadowOpacity: 0.3, shadowRadius: 10 },
+  actionBtnAuth: { backgroundColor: PAYTM_LIGHT_BLUE, borderRadius: 14, padding: 16, alignItems: 'center', elevation: 0, shadowColor: PAYTM_LIGHT_BLUE, shadowOpacity: 0.3, shadowRadius: 10 },
   actionBtnTextAuth: { color: WHITE, fontSize: 15, fontFamily: fonts.bold },
   switchAuthBtn: { marginTop: 16, alignItems: 'center' },
   switchAuthText: { color: PAYTM_BLUE, fontFamily: fonts.semiBold, fontSize: 13 },

@@ -220,7 +220,7 @@ const s = StyleSheet.create({
   blueBanner: { height: 140, width: '100%', position: 'absolute', top: 0, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
   homeContent: { flex: 1, paddingHorizontal: 12, paddingTop: 16 },
 
-  sectionBlock: { borderRadius: 16, marginBottom: 16, elevation: 1, overflow: 'hidden' },
+  sectionBlock: { borderRadius: 16, marginBottom: 16, elevation: 0, overflow: 'hidden' },
   sectionHeader: { fontSize: 16, fontFamily: fonts.bold, marginTop: 16, marginBottom: 12 },
   sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 },
 
@@ -235,7 +235,7 @@ const s = StyleSheet.create({
   upiIdText: { fontSize: 12, fontFamily: fonts.semiBold, marginRight: 8 },
   upiIdCopy: { fontSize: 12, fontFamily: fonts.bold },
 
-  aiProtectionCard: { backgroundColor: '#111', borderRadius: 16, marginBottom: 16, elevation: 4, overflow: 'hidden' },
+  aiProtectionCard: { backgroundColor: '#111', borderRadius: 16, marginBottom: 16, elevation: 0, overflow: 'hidden' },
   aiProtectionCardLight: { backgroundColor: WHITE, borderRadius: 16, marginBottom: 16, elevation: 0, overflow: 'hidden' },
   aiProtectionInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 18 },
   aiShieldIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
@@ -244,7 +244,7 @@ const s = StyleSheet.create({
 
   promoScroll: { marginBottom: 16 },
   promoContent: { paddingRight: 12 },
-  promoBanner: { width: width * 0.75, height: 80, borderRadius: 16, marginRight: 12, padding: 16, justifyContent: 'center', overflow: 'hidden', elevation: 1 },
+  promoBanner: { width: width * 0.75, height: 80, borderRadius: 16, marginRight: 12, padding: 16, justifyContent: 'center', overflow: 'hidden', elevation: 0 },
   promoTextWrap: { zIndex: 2 },
   promoTitle: { fontSize: 16, fontFamily: fonts.bold },
   promoSub: { fontSize: 12, fontFamily: fonts.medium, marginTop: 2 },

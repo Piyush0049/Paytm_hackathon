@@ -71,7 +71,7 @@ const s = StyleSheet.create({
     backgroundColor: PAYTM_LIGHT_BLUE,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
+    elevation: 0,
     shadowColor: PAYTM_LIGHT_BLUE,
     shadowOpacity: 0.5,
     shadowRadius: 12,

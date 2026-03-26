@@ -26,13 +26,13 @@ export const shadows = {
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    elevation: 4,
+    elevation: 0,
   },
   medium: {
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 0,
   },
 };
 

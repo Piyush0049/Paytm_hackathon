@@ -114,7 +114,7 @@ const s = StyleSheet.create({
   backBtn: { padding: 8, marginLeft: -10 },
   headerTitle: { color: WHITE, fontSize: 18, fontFamily: fonts.bold, marginLeft: 10 },
   content: { padding: 16 },
-  card: { backgroundColor: WHITE, borderRadius: 16, padding: 16, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5 },
+  card: { backgroundColor: WHITE, borderRadius: 16, padding: 16, marginBottom: 16, elevation: 0, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5 },
   label: { fontSize: 12, fontFamily: fonts.semiBold, color: '#666', marginBottom: 12 },
   inputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F5F7FA', borderRadius: 12, paddingHorizontal: 15, paddingVertical: 12 },
   input: { flex: 1, marginLeft: 10, fontSize: 15, fontFamily: fonts.medium, color: '#111' },
