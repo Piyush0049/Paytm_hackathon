@@ -5,21 +5,23 @@ import { PAYTM_BLUE, WHITE, fonts, layout } from '../styles/theme';
 
 interface HeaderProps {
   userName: string;
+  onProfilePress?: () => void;
+  isDarkMode?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ userName }) => {
+export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, isDarkMode = false }) => {
   const initials = (userName || 'U')[0].toUpperCase();
-  const paytmLogo = require('../../assets/paytm_logo.png');
+  const paytmLogo = require('../../assets/app-logo.png');
 
   return (
-    <View style={[s.topBarReal, { paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
+    <View style={[s.topBarReal, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
       <View style={s.topBarLeft}>
-        <TouchableOpacity style={s.userIconReal}>
+        <TouchableOpacity style={s.userIconReal} onPress={onProfilePress}>
           <Text style={s.userIconInit}>{initials}</Text>
         </TouchableOpacity>
         <Image
           source={paytmLogo}
-          style={{ width: 100, height: 60, resizeMode: 'contain', marginLeft: 12, tintColor: '#FFF' }}
+          style={{ width: 120, height: 80, resizeMode: 'contain', marginLeft: 12, tintColor: isDarkMode ? WHITE : undefined }}
         />
       </View>
       <View style={s.topBarRight}>

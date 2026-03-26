@@ -7,6 +7,13 @@ export const ERROR_RED = '#FF4E4E';
 export const BACKGROUND_COLOR = '#F5F7FA';
 export const WHITE = '#FFF';
 
+// Dark Mode Colors
+export const DARK_BACKGROUND = '#121212';
+export const DARK_SURFACE = '#1E1E1E';
+export const DARK_TEXT = '#FFFFFF';
+export const DARK_TEXT_MUTED = '#AAAAAA';
+export const DARK_BORDER = '#333333';
+
 export const fonts = {
   regular: 'Poppins-Regular',
   medium: 'Poppins-Medium',
@@ -31,6 +38,6 @@ export const shadows = {
 
 export const layout = {
   headerHeight: Platform.OS === 'ios' ? 100 : 88,
-  headerPaddingTop: Platform.OS === 'ios' ? 44 : 32,
+  headerPaddingTop: Platform.OS === 'ios' ? 44 : 20,
   screenPadding: 16,
 };

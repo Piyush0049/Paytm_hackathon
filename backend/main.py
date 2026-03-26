@@ -10,6 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import uvicorn
+import logging
+
+# Silence annoying passlib warning about bcrypt version
+logging.getLogger("passlib").setLevel(logging.ERROR)
 
 from database import connect_db, close_db
 from routes.auth_routes import router as auth_router

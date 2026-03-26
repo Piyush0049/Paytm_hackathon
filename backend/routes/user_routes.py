@@ -23,7 +23,17 @@ async def get_profile(user=Depends(get_current_user)):
         "kyc_status": user.get("kyc_status", "pending"),
         "member_since": user.get("member_since"),
         "preferred_language": user.get("preferred_language", "en"),
+        "qr_url": user.get("qr_url", f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={user.get('upi_id', '')}"),
     }
+
+# ─────────────────────── VERIFY UPI ───────────────────────
+@router.get("/verify-upi")
+async def verify_upi(upi_id: str, user=Depends(get_current_user)):
+    target = await cols.users.find_one({"upi_id": upi_id})
+    if not target:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"exists": True, "name": target.get("name", "Unknown User")}
 
 # ─────────────────────── BALANCE ───────────────────────
 @router.get("/balance")

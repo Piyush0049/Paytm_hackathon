@@ -7,22 +7,23 @@ interface VoicePayModalProps {
   visible: boolean;
   onClose: () => void;
   pulseAnim: Animated.Value;
+  isProcessing?: boolean;
 }
 
-export const VoicePayModal: React.FC<VoicePayModalProps> = ({ visible, onClose, pulseAnim }) => {
+export const VoicePayModal: React.FC<VoicePayModalProps> = ({ visible, onClose, pulseAnim, isProcessing }) => {
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={s.modalOverlay}>
         <View style={s.voiceModal}>
           <View style={s.voiceDragHandle} />
-          <Text style={s.voiceTitle}>VoiceGuard Pay</Text>
-          <Text style={s.voiceSub}>Triple Secured Transaction</Text>
+          <Text style={s.voiceTitle}>{isProcessing ? 'Verifying...' : 'VoiceGuard Pay'}</Text>
+          <Text style={s.voiceSub}>{isProcessing ? 'AI Security Check in progress' : 'Triple Secured Transaction'}</Text>
           <View style={s.voiceCircle}>
-            <Animated.View style={[s.voicePulse, { transform: [{ scale: pulseAnim }] }]}>
-              <Mic size={56} color={PAYTM_LIGHT_BLUE} />
+            <Animated.View style={[s.voicePulse, { transform: [{ scale: pulseAnim }], backgroundColor: isProcessing ? 'rgba(33, 193, 124, 0.2)' : 'rgba(0,186,242,0.2)' }]}>
+              <Mic size={56} color={isProcessing ? '#21C17C' : PAYTM_LIGHT_BLUE} />
             </Animated.View>
           </View>
-          <Text style={s.voiceHint}>Try: "Pay 500 to Rahul"</Text>
+          <Text style={s.voiceHint}>{isProcessing ? 'Analyzing voice biometrics...' : 'Try: "Pay 500 to Rahul"'}</Text>
           <TouchableOpacity style={s.voiceClose} onPress={onClose}>
             <Text style={s.voiceCloseText}>Cancel</Text>
           </TouchableOpacity>

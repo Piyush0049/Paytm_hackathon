@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator, StatusBar, Image, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator, StatusBar, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ShieldCheck, HelpCircle, X } from 'lucide-react-native';
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, SUCCESS_GREEN, WHITE, fonts } from '../styles/theme';
 
@@ -28,7 +29,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   const paytmLogo = require('../../assets/paytm_logo.png');
 
   return (
-    <SafeAreaView style={s.authSafe}>
+    <SafeAreaView style={s.authSafe} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor={WHITE} />
 
       <View style={s.cleanAuthHeader}>

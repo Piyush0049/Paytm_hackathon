@@ -7,9 +7,10 @@ interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setShowVoicePay: (show: boolean) => void;
+  isDarkMode?: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, setShowVoicePay }) => {
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, setShowVoicePay, isDarkMode = false }) => {
   const tabs = [
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'history', icon: ScrollText, label: 'History' },
@@ -19,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, setShow
   ];
 
   return (
-    <View style={s.tabBarReal}>
+    <View style={[s.tabBarReal, { backgroundColor: isDarkMode ? '#1E1E1E' : WHITE, borderTopColor: isDarkMode ? '#333' : '#EEE' }]}>
       {tabs.map((tab) => (
         <TouchableOpacity 
           key={tab.id} 

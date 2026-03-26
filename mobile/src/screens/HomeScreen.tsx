@@ -1,138 +1,258 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { QrCode, Smartphone, Landmark, Send, Zap, Tv, Car, ShieldCheck, ShieldAlert, Gift, ScrollText, CreditCard } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts } from '../styles/theme';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { QrCode, Smartphone, Landmark, Send, Zap, Tv, Car, ShieldCheck, ShieldAlert, ScrollText, CreditCard, Ticket, Plane, Banknote, Umbrella, History, Wallet, PiggyBank, Briefcase } from 'lucide-react-native';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
+
+const { width } = Dimensions.get('window');
 
 interface HomeScreenProps {
   balance: any;
   transactions: any[];
+  onAction: (type: string) => void;
+  setSubScreen: (screen: string) => void;
+  isDarkMode?: boolean;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, onAction, setSubScreen, isDarkMode = false }) => {
   const upiActions = [
-    { id: 'scan', icon: QrCode, label: 'Scan & Pay' },
-    { id: 'mobile', icon: Smartphone, label: 'To Mobile or\nContact' },
-    { id: 'bank', icon: Landmark, label: 'To Bank or\nSelf A/c' },
-    { id: 'upi', icon: Send, label: 'To UPI ID' },
+    { id: 'scan', icon: QrCode, label: 'Scan any QR', sub: 'scan', bg: '#002E6E' },
+    { id: 'mobile', icon: Smartphone, label: 'To Mobile or \nContact', sub: 'transfer', bg: '#002E6E' },
+    { id: 'upi', icon: Send, label: 'To UPI ID \nor App', sub: 'transfer', bg: '#002E6E' },
+    { id: 'bank', icon: Landmark, label: 'To Bank or \nSelf A/c', bg: '#002E6E' },
   ];
 
   const rechargeActions = [
-    { id: 'mob', icon: Smartphone, label: 'Mobile\nRecharge' },
-    { id: 'elec', icon: Zap, label: 'Electricity' },
-    { id: 'dth', icon: Tv, label: 'DTH' },
-    { id: 'fast', icon: Car, label: 'FASTag\nRecharge' },
+    { id: 'mob', icon: Smartphone, label: 'Mobile\nRecharge', sub: 'recharge', color: PAYTM_BLUE },
+    { id: 'elec', icon: Zap, label: 'Electricity', color: '#FF9800' },
+    { id: 'dth', icon: Tv, label: 'DTH\nRecharge', color: '#9C27B0' },
+    { id: 'fast', icon: Car, label: 'FASTag\nRecharge', color: '#21C17C' },
+  ];
+
+  const loanActions = [
+    { id: 'cscore', icon: SpeedometerIcon, label: 'Free Credit\nScore' },
+    { id: 'ploan', icon: Banknote, label: 'Personal\nLoan' },
+    { id: 'ccard', icon: CreditCard, label: 'Paytm SBI\nCard' },
+  ];
+
+  const travelActions = [
+    { id: 'flight', icon: Plane, label: 'Flight\nTickets' },
+    { id: 'bus', icon: Briefcase, label: 'Bus\nTickets' },
+    { id: 'train', icon: Ticket, label: 'Train\nTickets' },
+    { id: 'fastag', icon: Car, label: 'Buy\nFASTag' },
   ];
 
   const getCategoryIcon = (cat: string) => {
     switch (cat) {
       case 'Transfer': return <Send size={24} color={PAYTM_LIGHT_BLUE} />;
-      case 'Cashback': return <Gift size={24} color="#21C17C" />;
+      case 'Cashback': return <GiftIcon color="#21C17C" />;
       case 'Recharge': return <Smartphone size={24} color="#FF9800" />;
       case 'Bill Payment': return <ScrollText size={24} color="#9C27B0" />;
       default: return <CreditCard size={24} color="#555" />;
     }
   };
 
+  const bgStyle = { backgroundColor: isDarkMode ? DARK_BACKGROUND : '#F0F3F8' };
+  const cardStyle = { backgroundColor: isDarkMode ? DARK_SURFACE : WHITE };
+  const textStyle = { color: isDarkMode ? DARK_TEXT : '#1A202C' };
+  const subTextStyle = { color: isDarkMode ? DARK_TEXT_MUTED : '#718096' };
+  const dividerStyle = { backgroundColor: isDarkMode ? '#2D3748' : '#EDF2F7' };
+
   return (
-    <ScrollView style={s.screen} showsVerticalScrollIndicator={false} bounces={false}>
-      <View style={s.blueBanner} />
+    <ScrollView style={[s.screen, bgStyle]} showsVerticalScrollIndicator={false} bounces={false}>
+      {/* Background Banner extending from Header */}
+      <View style={[s.blueBanner, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE }]} />
+
       <View style={s.homeContent}>
-        <View style={s.walletStrip}>
-          <View style={s.walletInfo}>
-            <Text style={s.walletLabel}>Paytm Balance</Text>
-            <Text style={s.walletBal}>₹{(balance?.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Text>
-          </View>
-          <TouchableOpacity style={s.addMoneyBtn}>
-            <Text style={s.addMoneyText}>Add Money</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={s.aiProtectionCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {balance?.voice_enrolled ? <ShieldCheck size={22} color="#21C17C" /> : <ShieldAlert size={22} color="#FF9800" />}
-            <Text style={s.aiText}>{balance?.voice_enrolled ? 'VoiceGuard Active' : 'VoiceGuard Disabled'}</Text>
-          </View>
-          <Text style={s.aiScoreText}>Credit Score: {balance?.credit_score || 750}</Text>
-        </View>
-
-        <View style={s.sectionBlock}>
-          <Text style={s.sectionHeader}>UPI Money Transfer</Text>
+        {/* UPI MONEY TRANSFER CARD */}
+        <View style={[s.sectionBlock, cardStyle, { marginTop: 4 }]}>
+          <Text style={[s.sectionHeader, textStyle, { paddingHorizontal: 16 }]}>UPI Money Transfer</Text>
           <View style={s.actionGrid}>
-            {upiActions.map((a) => (
-              <TouchableOpacity key={a.id} style={s.actionItem}>
-                <View style={[s.actionIcon, { backgroundColor: '#F0F5FA' }]}>
-                  <a.icon size={26} color={PAYTM_BLUE} />
+            {upiActions.map((a, i) => (
+              <TouchableOpacity key={i} style={s.actionItem} onPress={() => a.sub ? setSubScreen(a.sub) : onAction(a.id)}>
+                <View style={[s.actionIconDark, { backgroundColor: a.bg }]}>
+                  <a.icon size={28} color={WHITE} />
                 </View>
-                <Text style={s.actionLabel}>{a.label}</Text>
+                <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
+          <View style={[s.upiIdStrip, { backgroundColor: isDarkMode ? '#2D3748' : '#EBF8FF' }]}>
+            <Text style={[s.upiIdText, { color: isDarkMode ? WHITE : PAYTM_BLUE }]}>Your UPI ID: {balance?.upi_id || 'Not Set'}</Text>
+            <TouchableOpacity><Text style={[s.upiIdCopy, { color: isDarkMode ? PAYTM_LIGHT_BLUE : '#002E6E' }]}>Copy</Text></TouchableOpacity>
+          </View>
         </View>
 
-        <View style={s.sectionBlock}>
-          <View style={s.sectionHeaderRow}>
-            <Text style={s.sectionHeader}>Recharge & Bill Payments</Text>
-            <TouchableOpacity><Text style={s.viewAllLink}>View All</Text></TouchableOpacity>
-          </View>
+        {/* MY PAYTM (Balance & Passbook) */}
+        <View style={[s.sectionBlock, cardStyle, { paddingVertical: 12 }]}>
           <View style={s.actionGrid}>
-            {rechargeActions.map((a) => (
-              <TouchableOpacity key={a.id} style={s.actionItem}>
-                <View style={s.actionIconSolid}>
-                  <a.icon size={24} color={WHITE} />
-                </View>
-                <Text style={s.actionLabel}>{a.label}</Text>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity style={s.myPaytmItem} onPress={() => setSubScreen('history')}>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#EBF8FF' }]}><History size={24} color={PAYTM_BLUE} /></View>
+              <Text style={[s.actionLabel, textStyle]}>Balance &\nHistory</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.myPaytmItem}>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#EBF8FF' }]}><Wallet size={24} color={PAYTM_BLUE} /></View>
+              <Text style={[s.actionLabel, textStyle]}>Paytm\nWallet</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.myPaytmItem}>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#EBF8FF' }]}><Landmark size={24} color={PAYTM_BLUE} /></View>
+              <Text style={[s.actionLabel, textStyle]}>Paytm Bank\nA/c</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.myPaytmItem}>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F3E8FF' }]}><PiggyBank size={24} color="#9C27B0" /></View>
+              <Text style={[s.actionLabel, textStyle]}>Personal\nLoan</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={s.sectionBlock}>
-          <Text style={s.sectionHeader}>Recent Transactions</Text>
-          {transactions.slice(0, 5).map((t, i) => (
-            <View key={i} style={s.txCard}>
-              <View style={s.txIconWrapper}>{getCategoryIcon(t.category)}</View>
-              <View style={s.txInfo}>
-                <Text style={s.txRecipient}>{t.recipient}</Text>
-                <Text style={s.txTime}>{new Date(t.timestamp).toLocaleDateString()}</Text>
+        {/* PAYTM AI VOICEGUARD SHIELD */}
+        <TouchableOpacity style={s.aiProtectionCard} onPress={() => onAction('voiceguard')} activeOpacity={0.9}>
+          <View style={s.aiProtectionInner}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={[s.aiShieldIcon, { backgroundColor: balance?.voice_enrolled ? '#E8F5E9' : '#FFF3E0' }]}>
+                {balance?.voice_enrolled ? <ShieldCheck size={26} color="#21C17C" /> : <ShieldAlert size={26} color="#FF9800" />}
               </View>
-              <Text style={[s.txAmount, { color: t.type === 'received' ? '#21C17C' : '#333' }]}>
-                {t.type === 'received' ? '+' : '-'}₹{t.amount}
-              </Text>
+              <View style={{ marginLeft: 14 }}>
+                <Text style={s.aiText}>Paytm VoiceGuard AI</Text>
+                <Text style={s.aiSubText}>{balance?.voice_enrolled ? 'Active • 100% Secured' : 'Tap to enable Voice Biometrics'}</Text>
+              </View>
             </View>
-          ))}
+            <ChevronRightIcon color="#FFF" />
+          </View>
+        </TouchableOpacity>
+
+        {/* RECHARGE & BILL PAYMENTS */}
+        <View style={[s.sectionBlock, cardStyle]}>
+          <View style={s.sectionHeaderRow}>
+            <Text style={[s.sectionHeader, textStyle]}>Recharge & Bill Payments</Text>
+          </View>
+          <View style={s.actionGrid}>
+            {rechargeActions.map((a, i) => (
+              <TouchableOpacity key={i} style={s.actionItem} onPress={() => a.sub ? setSubScreen(a.sub) : onAction(a.id)}>
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>
+                  <a.icon size={26} color={a.color} />
+                </View>
+                <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
+
+        {/* PROMO BANNERS */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.promoScroll} contentContainerStyle={s.promoContent}>
+          <View style={[s.promoBanner, { backgroundColor: '#E0F7FA' }]}>
+            <View style={s.promoTextWrap}>
+              <Text style={[s.promoTitle, { color: '#006064' }]}>Get ₹100 Cashback</Text>
+              <Text style={[s.promoSub, { color: '#00838F' }]}>On your next Mobile Recharge</Text>
+            </View>
+            <View style={[s.promoDecor, { backgroundColor: '#B2EBF2' }]} />
+          </View>
+          <View style={[s.promoBanner, { backgroundColor: '#FCE4EC' }]}>
+            <View style={s.promoTextWrap}>
+              <Text style={[s.promoTitle, { color: '#880E4F' }]}>Paytm Postpaid</Text>
+              <Text style={[s.promoSub, { color: '#AD1457' }]}>Buy now, Pay next month</Text>
+            </View>
+            <View style={[s.promoDecor, { backgroundColor: '#F8BBD0' }]} />
+          </View>
+        </ScrollView>
+
+        {/* LOANS & CREDIT CARDS */}
+        <View style={[s.sectionBlock, cardStyle]}>
+          <Text style={[s.sectionHeader, textStyle, { paddingHorizontal: 16 }]}>Loans & Credit Cards</Text>
+          <View style={s.actionGrid}>
+            {loanActions.map((a, i) => (
+              <TouchableOpacity key={i} style={s.actionItem} onPress={() => onAction(a.id)}>
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>
+                  <a.icon size={26} color="#00BAF2" />
+                </View>
+                <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* TICKET BOOKING */}
+        <View style={[s.sectionBlock, cardStyle]}>
+          <Text style={[s.sectionHeader, textStyle, { paddingHorizontal: 16 }]}>Ticket Booking</Text>
+          <View style={s.actionGrid}>
+            {travelActions.map((a, i) => (
+              <TouchableOpacity key={i} style={s.actionItem} onPress={() => onAction(a.id)}>
+                <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>
+                  <a.icon size={26} color="#FF9800" />
+                </View>
+                <Text style={[s.actionLabel, textStyle]}>{a.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* RECENT TRANSACTIONS (Small preview) */}
+        {transactions.length > 0 && (
+          <View style={[s.sectionBlock, cardStyle, { paddingHorizontal: 16, paddingBottom: 16 }]}>
+            <Text style={[s.sectionHeader, textStyle, { marginTop: 12, marginBottom: 12 }]}>Recent Transactions</Text>
+            {transactions.slice(0, 3).map((t, i) => (
+              <View key={i} style={[s.txCard, { borderBottomColor: dividerStyle.backgroundColor, borderBottomWidth: i === 2 ? 0 : 1 }]}>
+                <View style={[s.txIconWrapper, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>{getCategoryIcon(t.category)}</View>
+                <View style={s.txInfo}>
+                  <Text style={[s.txRecipient, textStyle]}>{t.recipient}</Text>
+                  <Text style={[s.txTime, subTextStyle]}>{new Date(t.timestamp).toLocaleDateString()}</Text>
+                </View>
+                <Text style={[s.txAmount, { color: t.type === 'received' ? '#21C17C' : textStyle.color }]}>
+                  {t.type === 'received' ? '+' : '-'}₹{t.amount}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         <View style={{ height: 120 }} />
       </View>
     </ScrollView>
   );
 };
 
+// Helper Mock Icons to save import space
+const SpeedometerIcon = ({ color }: { color: string }) => <Zap size={26} color={color} />; // Mock
+const GiftIcon = ({ color }: { color: string }) => <Zap size={24} color={color} />; // Mock
+const ChevronRightIcon = ({ color }: { color: string }) => <Text style={{ color, fontSize: 20 }}>›</Text>;
+
 const s = StyleSheet.create({
   screen: { flex: 1 },
-  blueBanner: { backgroundColor: PAYTM_BLUE, height: 88, width: '100%', position: 'absolute', top: 0 },
-  homeContent: { flex: 1, paddingHorizontal: 16, paddingTop: 10 },
-  walletStrip: { backgroundColor: WHITE, borderRadius: 16, padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', elevation: 4, marginBottom: 16 },
-  walletInfo: {},
-  walletLabel: { color: '#666', fontSize: 12, fontFamily: fonts.semiBold },
-  walletBal: { color: '#111', fontSize: 24, fontFamily: fonts.bold, marginTop: 2 },
-  addMoneyBtn: { backgroundColor: PAYTM_BLUE, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 8 },
-  addMoneyText: { color: WHITE, fontFamily: fonts.bold, fontSize: 12 },
-  aiProtectionCard: { backgroundColor: '#E8F5E9', borderRadius: 12, padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  aiText: { color: '#1A531B', fontFamily: fonts.bold, fontSize: 13, marginLeft: 8 },
-  aiScoreText: { color: '#1A531B', fontSize: 12, fontFamily: fonts.semiBold },
-  sectionBlock: { backgroundColor: WHITE, borderRadius: 16, padding: 18, marginBottom: 16, elevation: 2 },
-  sectionHeader: { fontSize: 15, fontFamily: fonts.bold, color: '#111', marginBottom: 16 },
-  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  viewAllLink: { color: PAYTM_LIGHT_BLUE, fontFamily: fonts.bold, fontSize: 13 },
-  actionGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  actionItem: { width: '23%', alignItems: 'center', marginBottom: 16 },
-  actionIcon: { width: 52, height: 52, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  actionIconSolid: { width: 52, height: 52, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 8, backgroundColor: PAYTM_LIGHT_BLUE },
-  actionLabel: { fontSize: 11, color: '#333', textAlign: 'center', fontFamily: fonts.medium, lineHeight: 14 },
-  txCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
-  txIconWrapper: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#F5F7FA', justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  blueBanner: { height: 140, width: '100%', position: 'absolute', top: 0, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
+  homeContent: { flex: 1, paddingHorizontal: 12, paddingTop: 16 },
+  
+  sectionBlock: { borderRadius: 16, marginBottom: 16, elevation: 1, overflow: 'hidden' },
+  sectionHeader: { fontSize: 16, fontFamily: fonts.bold, marginTop: 16, marginBottom: 12 },
+  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 },
+  
+  actionGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 4, paddingBottom: 8 },
+  actionItem: { width: '25%', alignItems: 'center', marginBottom: 16, paddingHorizontal: 4 },
+  myPaytmItem: { width: '25%', alignItems: 'center' },
+  actionIconDark: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  actionIconLight: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  actionLabel: { fontSize: 11, fontFamily: fonts.semiBold, textAlign: 'center', lineHeight: 14 },
+  
+  upiIdStrip: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 10, marginHorizontal: 16, marginBottom: 16, borderRadius: 8 },
+  upiIdText: { fontSize: 12, fontFamily: fonts.semiBold, marginRight: 8 },
+  upiIdCopy: { fontSize: 12, fontFamily: fonts.bold },
+
+  aiProtectionCard: { backgroundColor: '#111', borderRadius: 16, marginBottom: 16, elevation: 4, overflow: 'hidden' },
+  aiProtectionInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 18 },
+  aiShieldIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
+  aiText: { color: WHITE, fontFamily: fonts.bold, fontSize: 15 },
+  aiSubText: { color: '#AAA', fontSize: 12, fontFamily: fonts.medium, marginTop: 2 },
+
+  promoScroll: { marginBottom: 16 },
+  promoContent: { paddingRight: 12 },
+  promoBanner: { width: width * 0.75, height: 80, borderRadius: 16, marginRight: 12, padding: 16, justifyContent: 'center', overflow: 'hidden', elevation: 1 },
+  promoTextWrap: { zIndex: 2 },
+  promoTitle: { fontSize: 16, fontFamily: fonts.bold },
+  promoSub: { fontSize: 12, fontFamily: fonts.medium, marginTop: 2 },
+  promoDecor: { position: 'absolute', right: -30, bottom: -30, width: 100, height: 100, borderRadius: 50, zIndex: 1 },
+
+  txCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14 },
+  txIconWrapper: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
   txInfo: { flex: 1 },
-  txRecipient: { fontSize: 14, fontFamily: fonts.semiBold, color: '#111' },
-  txTime: { fontSize: 11, fontFamily: fonts.regular, color: '#888', marginTop: 2 },
+  txRecipient: { fontSize: 14, fontFamily: fonts.bold },
+  txTime: { fontSize: 11, fontFamily: fonts.regular, marginTop: 4 },
   txAmount: { fontSize: 14, fontFamily: fonts.bold },
 });

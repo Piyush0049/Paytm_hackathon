@@ -15,9 +15,17 @@ router = APIRouter()
 @router.post("/send-otp")
 async def send_otp(request: Request):
     body = await request.json()
-    identifier = body.get("email") or body.get("phone") or ""
+    identifier = (body.get("email") or body.get("phone") or "").lower().strip()
+    password = body.get("password")
+    is_login = body.get("is_login", False)
+
     if not identifier:
         raise HTTPException(400, "Email is required")
+
+    if is_login:
+        user = await cols.users.find_one({"email": identifier})
+        if not user or not verify_password(password, user.get("password", "")):
+            raise HTTPException(401, "Invalid credentials")
 
     otp_code = str(random.randint(1000, 9999))
     await cols.otps.update_one(
@@ -39,12 +47,14 @@ async def send_otp(request: Request):
 @router.post("/signup")
 async def signup(request: Request):
     body = await request.json()
-    identifier = body.get("email") or body.get("phone") or ""
+    print(f"📥 SIGNUP ATTEMPT: {body}")
+    identifier = (body.get("email") or body.get("phone") or "").lower().strip()
     name = body.get("name", "User")
     password = body.get("password", "")
     otp = body.get("otp", "")
 
     if not identifier or not password or not otp:
+        print(f"⚠️ SIGNUP FAIL: Missing fields. ID={identifier}, PWD={'YES' if password else 'NO'}, OTP={otp}")
         raise HTTPException(400, "All fields are required")
 
     if await cols.users.find_one({"email": identifier}):
@@ -57,12 +67,17 @@ async def signup(request: Request):
     user_id = f"usr_{uuid.uuid4().hex[:8]}"
     upi_prefix = identifier.split("@")[0] if "@" in identifier else identifier
 
+    upi_id = f"{upi_prefix}@paytm"
+    qr_data = f"upi://pay?pa={upi_id}&pn={name}&cu=INR"
+    qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_data}"
+
     await cols.users.insert_one({
         "user_id": user_id,
         "name": name,
         "email": identifier,
         "password": get_password_hash(password),
-        "upi_id": f"{upi_prefix}@paytm",
+        "upi_id": upi_id,
+        "qr_url": qr_url,
         "balance": 1000.0,
         "voice_enrolled": False,
         "trusted_recipients": [],
@@ -101,20 +116,38 @@ async def signup(request: Request):
 @router.post("/login")
 async def login(request: Request):
     body = await request.json()
-    identifier = body.get("email") or body.get("phone") or ""
+    email_in = str(body.get("email") or "").strip().lower()
+    phone_in = str(body.get("phone") or "").strip().lower()
+    identifier = email_in or phone_in
+    print(f"📥 LOGIN ATTEMPT: Email='{email_in}', Phone='{phone_in}', EffectiveID='{identifier}'")
+    
     password = body.get("password", "")
-    otp = body.get("otp", "")
+    otp = str(body.get("otp", "")).strip()
 
     if not identifier or not password or not otp:
+        print(f"⚠️ LOGIN FAIL: Missing fields. ID='{identifier}', PWD={'YES' if password else 'NO'}, OTP='{otp}'")
         raise HTTPException(400, "All fields are required")
 
     user = await cols.users.find_one({"email": identifier})
-    if not user or not verify_password(password, user.get("password", "")):
+    if not user:
+        print(f"⚠️ LOGIN FAIL: User NOT FOUND in DB for identifier '{identifier}'")
+        raise HTTPException(401, "User not found. Please signup first.")
+
+    if not verify_password(password, user.get("password", "")):
+        print(f"⚠️ LOGIN FAIL: Incorrect password for '{identifier}'")
         raise HTTPException(401, "Invalid credentials")
 
     otp_rec = await cols.otps.find_one({"email": identifier})
-    if not otp_rec or otp_rec.get("otp") != otp:
-        raise HTTPException(400, "Invalid or expired OTP")
+    if not otp_rec:
+        # Check if accidentally stored differently
+        all_otps = await cols.otps.find({}).to_list(10)
+        print(f"⚠️ LOGIN FAIL: No OTP for '{identifier}'. Available OTPs for: {[o.get('email') for o in all_otps]}")
+        raise HTTPException(400, "No OTP record found for this email. Please request a new one.")
+    
+    db_otp = str(otp_rec.get("otp", "")).strip()
+    if db_otp != otp:
+        print(f"⚠️ LOGIN FAIL: OTP Mismatch for '{identifier}'. DB='{db_otp}', Entered='{otp}'")
+        raise HTTPException(400, f"Invalid OTP")
 
     await cols.otps.delete_one({"email": identifier})
     token = create_access_token({"sub": user["user_id"]})

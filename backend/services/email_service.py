@@ -52,8 +52,7 @@ body {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background:
     msg.attach(MIMEText(html, 'html'))
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(SMTP_EMAIL, SMTP_PASSWORD)
         server.send_message(msg)
         server.quit()
