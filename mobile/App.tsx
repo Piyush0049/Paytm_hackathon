@@ -16,6 +16,7 @@ import { ProfileScreen } from './src/screens/ProfileScreen';
 import { ScanScreen } from './src/screens/ScanScreen';
 import { TransferScreen } from './src/screens/TransferScreen';
 import { RechargeScreen } from './src/screens/RechargeScreen';
+import { VoiceEnrollScreen } from './src/screens/VoiceEnrollScreen';
 import { VoicePayModal } from './src/components/VoicePayModal';
 import { SuccessOverlay } from './src/components/SuccessOverlay';
 import { QRModal } from './src/components/QRModal';
@@ -24,9 +25,9 @@ import { MockService } from './src/services/MockService';
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voiceguard-new-25.loca.lt'; // tunnel URL for iOS
+const BACKEND_TUNNEL = 'https://paytm-voice-api-98050.loca.lt'; // tunnel URL for universal global access
 
-const BACKEND = BACKEND_TUNNEL; // Use tunnel for ALL devices so friends can access it!
+const BACKEND = BACKEND_TUNNEL;
 
 const safeJson = async (res: Response) => {
   const txt = await res.text();
@@ -60,20 +61,7 @@ export default function App() {
   const [scannedRecipient, setScannedRecipient] = useState<{id: string, name: string} | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showVoicePay, setShowVoicePay] = useState(false);
-  const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState({ visible: false, title: '', sub: '' });
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.15, duration: 800, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, []);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -99,29 +87,60 @@ export default function App() {
   const authFetch = async (endpoint: string, tkn?: string) => {
     const t = tkn || token;
     const res = await fetch(`${BACKEND}${endpoint}`, {
-      headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' }
+      headers: { 
+        'Authorization': `Bearer ${t}`, 
+        'Content-Type': 'application/json', 
+        'Bypass-Tunnel-Reminder': 'true' 
+      }
     });
+
     if (res.status === 401) {
       await AsyncStorage.removeItem('authToken');
       await AsyncStorage.removeItem('authTime');
       setToken(null);
       throw new Error('Session expired');
     }
+
     const text = await res.text();
-    try { return JSON.parse(text); } catch { throw new Error('Invalid response from server'); }
+    try { 
+      return JSON.parse(text); 
+    } catch { 
+      if (text.includes('localtunnel.me') || text.includes('loca.lt')) {
+        throw new Error('Tunnel is blocked by your network provider or ISP.');
+      }
+      throw new Error('Invalid response from server'); 
+    }
+  };
+
+  const globalFetch = async (url: string, options: any = {}) => {
+    const headers = {
+      ...(options.headers || {}),
+      'Bypass-Tunnel-Reminder': 'true',
+    };
+    
+    if (token && !headers['Authorization']) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    if (options.body && !headers['Content-Type'] && !(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    return fetch(url, { ...options, headers });
   };
 
   const loadAllData = async () => {
     try {
-      const [p, b, t, n] = await Promise.all([
-        authFetch('/user/profile'),
-        authFetch('/user/balance'),
-        authFetch('/user/transactions?limit=20'),
-        authFetch('/user/notifications'),
-      ]);
+      const p = await authFetch('/user/profile');
       setProfile(p);
+      
+      const b = await authFetch('/user/balance');
       setBalance(b);
+      
+      const t = await authFetch('/user/transactions?limit=20');
       setTransactions(t.transactions || []);
+      
+      const n = await authFetch('/user/notifications');
       setNotifications(n.notifications || []);
     } catch (e) { console.log('Load error:', e); }
   };
@@ -136,9 +155,8 @@ export default function App() {
     setAuthLoading(true);
     try {
       if (!showOtpField) {
-        const res = await fetch(`${BACKEND}/auth/send-otp`, {
+        const res = await globalFetch(`${BACKEND}/auth/send-otp`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
           body: JSON.stringify({ 
             email: authEmail.toLowerCase().trim(), 
             password: authPassword, 
@@ -154,13 +172,13 @@ export default function App() {
         const body = authMode === 'signup'
           ? { email: authEmail.toLowerCase().trim(), name: authName, password: authPassword, otp: authOtp }
           : { email: authEmail.toLowerCase().trim(), password: authPassword, otp: authOtp };
-        const res = await fetch(`${BACKEND}${endpoint}`, {
+        const res = await globalFetch(`${BACKEND}${endpoint}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
           body: JSON.stringify(body)
         });
         const data = await safeJson(res);
         if (!res.ok) throw new Error(data.detail || 'Auth failed');
+        setSuccessMsg({ visible: false, title: '', sub: '' });
         setToken(data.token);
         await AsyncStorage.setItem('authToken', data.token);
         await AsyncStorage.setItem('authTime', Date.now().toString());
@@ -172,9 +190,8 @@ export default function App() {
   const handleTransfer = async (amount: number, recipient: string, password: string) => {
     setAuthLoading(true);
     try {
-      const res = await fetch(`${BACKEND}/payment/upi`, {
+      const res = await globalFetch(`${BACKEND}/payment/upi`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
         body: JSON.stringify({ recipient, amount, password })
       });
       const data = await safeJson(res);
@@ -194,34 +211,10 @@ export default function App() {
     setShowOtpField(false); setActiveTab('home');
   };
 
-  const processVoicePlay = async () => {
+  const processVoicePlay = () => {
     setShowVoicePay(true);
-    setIsVoiceProcessing(false);
-    setTimeout(() => setIsVoiceProcessing(true), 1500);
-    
-    setTimeout(async () => {
-      try {
-        const formData = new FormData();
-        formData.append('audio', { uri: 'file:///mock_audio.wav', name: 'voice.wav', type: 'audio/wav' } as any);
-
-        const res = await fetch(`${BACKEND}/payment/voice/process`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: formData
-        });
-        const data = await safeJson(res);
-        setShowVoicePay(false);
-        setIsVoiceProcessing(false);
-        if (!res.ok) throw new Error(data.detail || 'Voice payment failed');
-        setSuccessMsg({ visible: true, title: 'Payment Successful', sub: `Sent ₹${data.amount} to ${data.recipient}` });
-        loadAllData();
-      } catch (e: any) {
-        setShowVoicePay(false);
-        setIsVoiceProcessing(false);
-        Alert.alert('VoiceGuard Error', e.message);
-      }
-    }, 4000);
   };
+
 
   const handleRecharge = async (num: string, amt: number) => {
     setAuthLoading(true);
@@ -231,9 +224,8 @@ export default function App() {
       formData.append('operator', 'Jio');
       formData.append('amount', amt.toString());
 
-      const res = await fetch(`${BACKEND}/payment/recharge`, {
+      const res = await globalFetch(`${BACKEND}/payment/recharge`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
       const data = await safeJson(res);
@@ -244,24 +236,10 @@ export default function App() {
     setAuthLoading(false);
   };
 
-  const handleEnrollVoice = async () => {
-    setAuthLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('audio', { uri: 'file:///enroll_mock.wav', name: 'enroll.wav', type: 'audio/wav' } as any);
-
-      const res = await fetch(`${BACKEND}/payment/voice/enroll`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
-      const data = await safeJson(res);
-      if (!res.ok) throw new Error(data.detail || 'Enrollment failed');
-      setSuccessMsg({ visible: true, title: 'Voice Enrolled', sub: 'Your voice is your secure key' });
-      loadAllData();
-    } catch (e: any) { Alert.alert('Enrollment Error', e.message); }
-    setAuthLoading(false);
+  const handleEnrollVoice = () => {
+    setSubScreen('voiceguard');
   };
+
 
   if (!fontsLoaded) {
     return (
@@ -310,6 +288,12 @@ export default function App() {
           /> :
           subScreen === 'recharge' ? <RechargeScreen onBack={() => setSubScreen(null)} onRecharge={(n, a) => { setSubScreen(null); handleRecharge(n, a); }} /> :
           subScreen === 'history' ? <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} /> :
+          subScreen === 'voiceguard' ? <VoiceEnrollScreen
+            onBack={() => setSubScreen(null)}
+            onComplete={() => { setSubScreen(null); loadAllData(); }}
+            token={token}
+            backendUrl={BACKEND}
+          /> :
           <HomeScreen
             balance={balance}
             transactions={transactions}
@@ -320,6 +304,8 @@ export default function App() {
                 setSubScreen(type === 'scan' ? 'scan' : 'transfer');
               } else if (type === 'mob') {
                 setSubScreen('recharge');
+              } else if (type === 'voiceguard') {
+                setSubScreen('voiceguard');
               } else if (type === 'add') {
                 Alert.alert('Add Money', 'Redirecting to secure gateway...');
               }
@@ -328,13 +314,21 @@ export default function App() {
         )}
         {activeTab === 'history' && <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} token={token} backendUrl={BACKEND} />}
         {activeTab === 'notifs' && <AlertsScreen notifications={notifications} isDarkMode={isDarkMode} />}
-        {activeTab === 'profile' && <ProfileScreen profile={profile} logout={logout} onEnroll={handleEnrollVoice} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
+        {activeTab === 'profile' && <ProfileScreen profile={profile} logout={logout} onEnroll={handleEnrollVoice} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} onBack={() => setActiveTab('home')} />}
 
         <VoicePayModal
           visible={showVoicePay}
           onClose={() => setShowVoicePay(false)}
-          pulseAnim={pulseAnim}
-          isProcessing={isVoiceProcessing}
+          isDarkMode={isDarkMode}
+          token={token}
+          backendUrl={BACKEND}
+          voiceEnrolled={balance?.voice_enrolled || false}
+          onPaymentSuccess={(data: any) => {
+            setShowVoicePay(false);
+            setSuccessMsg({ visible: true, title: 'Voice Payment Sent', sub: `₹${data.amount} sent to ${data.recipient}` });
+            loadAllData();
+          }}
+          onEnrollPress={() => setSubScreen('voiceguard')}
         />
         {!subScreen && (
           <Navbar

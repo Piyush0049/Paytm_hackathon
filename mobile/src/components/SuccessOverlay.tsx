@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-import { CheckCircle2 } from 'lucide-react-native';
+import { View, Text, StyleSheet, Animated, Platform, Easing } from 'react-native';
+import { Check, ShieldCheck } from 'lucide-react-native';
 import { SUCCESS_GREEN, WHITE, fonts } from '../styles/theme';
-
-const { width, height } = Dimensions.get('window');
 
 interface SuccessOverlayProps {
   visible: boolean;
@@ -13,21 +11,26 @@ interface SuccessOverlayProps {
 }
 
 export const SuccessOverlay: React.FC<SuccessOverlayProps> = ({ visible, message, submessage, onFinish }) => {
-  const scale = useRef(new Animated.Value(0)).current;
+  const transY = useRef(new Animated.Value(-150)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.spring(scale, { toValue: 1, useNativeDriver: true, friction: 8 }),
-        Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true })
+        Animated.spring(transY, { toValue: Platform.OS === 'ios' ? 60 : 40, friction: 8, tension: 40, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: true })
       ]).start();
 
-      setTimeout(() => {
-        Animated.timing(opacity, { toValue: 0, duration: 500, useNativeDriver: true }).start(() => onFinish());
-      }, 2500);
+      const timer = setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(transY, { toValue: -150, duration: 400, easing: Easing.in(Easing.ease), useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 0, duration: 400, useNativeDriver: true })
+        ]).start(() => onFinish());
+      }, 3500);
+
+      return () => clearTimeout(timer);
     } else {
-      scale.setValue(0);
+      transY.setValue(-150);
       opacity.setValue(0);
     }
   }, [visible]);
@@ -35,19 +38,61 @@ export const SuccessOverlay: React.FC<SuccessOverlayProps> = ({ visible, message
   if (!visible) return null;
 
   return (
-    <Animated.View style={[s.overlay, { opacity }]}>
-      <Animated.View style={[s.card, { transform: [{ scale }] }]}>
-        <CheckCircle2 size={80} color={SUCCESS_GREEN} strokeWidth={3} />
-        <Text style={s.title}>{message}</Text>
-        {submessage && <Text style={s.sub}>{submessage}</Text>}
-      </Animated.View>
+    <Animated.View style={[s.toastContainer, { transform: [{ translateY: transY }], opacity }]} pointerEvents="none">
+      <View style={s.toastContent}>
+        <View style={s.iconWrapper}>
+          <ShieldCheck size={24} color={WHITE} strokeWidth={2.5} />
+        </View>
+        <View style={s.textWrapper}>
+          <Text style={s.title}>{message}</Text>
+          {submessage && <Text style={s.sub} numberOfLines={2}>{submessage}</Text>}
+        </View>
+      </View>
     </Animated.View>
   );
 };
 
 const s = StyleSheet.create({
-  overlay: { position: 'absolute', top: 0, left: 0, width, height, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', zIndex: 9999 },
-  card: { backgroundColor: WHITE, padding: 40, borderRadius: 32, alignItems: 'center', width: '85%', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 20, elevation: 0 },
-  title: { fontSize: 22, fontFamily: fonts.bold, color: '#111', marginTop: 24, textAlign: 'center' },
-  sub: { fontSize: 14, fontFamily: fonts.regular, color: '#666', marginTop: 8, textAlign: 'center' }
+  toastContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  toastContent: {
+    backgroundColor: '#1E1E24',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 24,
+    width: '100%',
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 10 }, 
+    shadowOpacity: 0.3, 
+    shadowRadius: 20, 
+    elevation: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)'
+  },
+  iconWrapper: {
+    backgroundColor: SUCCESS_GREEN,
+    width: 48, 
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center', 
+    alignItems: 'center',
+    marginRight: 16,
+    shadowColor: SUCCESS_GREEN,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+  },
+  textWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  title: { fontSize: 16, fontFamily: fonts.bold, color: WHITE, letterSpacing: 0.2 },
+  sub: { fontSize: 13, fontFamily: fonts.medium, color: '#A0A0A0', marginTop: 3, lineHeight: 18 }
 });

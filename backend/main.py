@@ -15,16 +15,33 @@ import logging
 # Silence annoying passlib warning about bcrypt version
 logging.getLogger("passlib").setLevel(logging.ERROR)
 
+# Silence harmless uvicorn warnings caused by localtunnel/app tearing down keep-alive connections
+class IgnoreInvalidHTTP(logging.Filter):
+    def filter(self, record):
+        return "Invalid HTTP request received" not in record.getMessage()
+
+logging.getLogger("uvicorn.error").addFilter(IgnoreInvalidHTTP())
+
 from database import connect_db, close_db
 from routes.auth_routes import router as auth_router
 from routes.user_routes import router as user_router
 from routes.payment_routes import router as payment_router
 from routes.merchant_routes import router as merchant_router
+from routes.voice_routes import router as voice_router
+
+from services.voice_auth_service import VoiceAuthService
 
 # ─── Lifespan (replaces deprecated on_event) ───
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await connect_db()
+    print("🧠 Warming up Voice AI Models (this may take a few seconds)...")
+    try:
+        VoiceAuthService.get_encoder()
+        VoiceAuthService.get_whisper()
+    except Exception as e:
+        print(f"⚠️ Warning: Could not pre-load AI models: {e}")
+        
     print("🚀 Paytm AI VoiceGuard v2.0 is LIVE")
     yield
     await close_db()
@@ -50,6 +67,7 @@ app.include_router(auth_router,     prefix="/auth",     tags=["🔐 Authenticati
 app.include_router(user_router,     prefix="/user",     tags=["👤 User"])
 app.include_router(payment_router,                      tags=["💳 Payments & Voice"])
 app.include_router(merchant_router, prefix="/merchant", tags=["🏪 Merchant & Soundbox"])
+app.include_router(voice_router,    prefix="/api",      tags=["🔊 Voice Authentication"])
 
 # ─── Health Check ───
 @app.get("/", tags=["System"])

@@ -124,7 +124,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
                   <View style={s.txInfo}>
                     <Text style={[s.txRecipient, { color: text }]}>{t.recipient}</Text>
                     <Text style={[s.txMemo, { color: textMuted }]}>{t.memo}</Text>
-                    <Text style={[s.txTime, { color: isDarkMode ? '#555' : '#BBB' }]}>{new Date(t.timestamp).toLocaleString()}</Text>
+                    <Text style={[s.txTime, { color: isDarkMode ? '#555' : '#BBB' }]}>{t.timestamp}</Text>
                   </View>
                   <View style={s.txAmountCol}>
                     <Text style={[s.txAmount, { color: t.type === 'received' ? '#21C17C' : '#FF6B6B' }]}>

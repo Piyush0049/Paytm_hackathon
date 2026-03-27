@@ -63,7 +63,7 @@ async def get_transactions(user=Depends(get_current_user), limit: int = Query(20
             "recipient": t.get("recipient"),
             "memo": t.get("memo"),
             "category": t.get("category"),
-            "timestamp": str(t.get("timestamp", "")),
+            "timestamp": t.get("timestamp").strftime("%d %b %Y, %I:%M %p") if t.get("timestamp") else "",
             "status": t.get("status"),
             "verification_method": t.get("verification_method"),
             "biometric_score": t.get("biometric_score"),
@@ -82,7 +82,7 @@ async def get_notifications(user=Depends(get_current_user)):
         notifs.append({
             "title": n.get("title"),
             "body": n.get("body"),
-            "time": n.get("time"),
+            "time": n.get("created_at").strftime("%d %b %Y, %I:%M %p") if n.get("created_at") else n.get("time", "Just now"),
             "read": n.get("read", False),
             "type": n.get("type"),
         })

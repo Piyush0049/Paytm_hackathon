@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
-import { ShieldCheck, LineChart, Globe, ChevronRight, LogOut, Settings2, HelpCircle } from 'lucide-react-native';
+import { ShieldCheck, LineChart, Globe, ChevronRight, LogOut, Settings2, HelpCircle, Moon, ArrowLeft } from 'lucide-react-native';
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
 import { QRModal } from '../components/QRModal';
 
@@ -12,9 +12,10 @@ interface ProfileScreenProps {
   onEnroll: () => void;
   isDarkMode?: boolean;
   setIsDarkMode?: (val: boolean) => void;
+  onBack?: () => void;
 }
 
-export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, onEnroll, isDarkMode = false, setIsDarkMode }) => {
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, onEnroll, isDarkMode = false, setIsDarkMode, onBack }) => {
   const [showQR, setShowQR] = useState(false);
 
   const menuItems = [
@@ -23,6 +24,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
     { icon: Settings2, color: PAYTM_LIGHT_BLUE, label: 'Payment Settings' },
     { icon: Globe, color: '#9C27B0', label: 'Language' },
     { icon: HelpCircle, color: '#607D8B', label: '24x7 Help & Support' },
+    { icon: Moon, color: '#4A90E2', label: 'Change Appearance' },
   ];
 
   const qrUrl = profile?.qr_url || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${profile?.upi_id || ''}`;
@@ -35,6 +37,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
     <ScrollView style={[s.screen, { backgroundColor: bg }]} showsVerticalScrollIndicator={false}>
       {/* Premium Profile Header Background */}
       <View style={s.topBackground} />
+
+      {/* Back Button Overlay */}
+      {onBack && (
+        <TouchableOpacity style={{ position: 'absolute', top: 20, left: 16, zIndex: 10, padding: 8, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 20 }} onPress={onBack}>
+          <ArrowLeft size={24} color={WHITE} />
+        </TouchableOpacity>
+      )}
 
       {/* Floating Header Card */}
       <View style={[s.profileHeaderCard, { backgroundColor: surface, shadowColor: isDarkMode ? '#000' : '#CCC' }]}>
@@ -72,7 +81,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
           <TouchableOpacity 
             key={i} 
             style={[s.profileListItem, { borderBottomColor: isDarkMode ? '#333' : '#F5F5F5', borderBottomWidth: i === menuItems.length - 1 ? 0 : 1 }]} 
-            onPress={() => item.label.includes('VoiceGuard') ? onEnroll() : null}
+            onPress={() => {
+              if (item.label.includes('VoiceGuard')) onEnroll();
+              if (item.label === 'Change Appearance' && setIsDarkMode) setIsDarkMode(!isDarkMode);
+            }}
           >
             <View style={[s.profileListIcon, { backgroundColor: item.color + '18' }]}>
               <item.icon size={20} color={item.color} />
