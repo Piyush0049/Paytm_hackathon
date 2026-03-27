@@ -25,7 +25,7 @@ import { MockService } from './src/services/MockService';
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-98050.loca.lt'; // tunnel URL for universal global access
+const BACKEND_TUNNEL = 'https://paytm-voice-api-27418.loca.lt'; // tunnel URL for universal global access
 
 const BACKEND = BACKEND_TUNNEL;
 
