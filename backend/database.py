@@ -43,6 +43,7 @@ async def connect_db():
     # Indexes
     await cols.users.create_index("user_id", unique=True)
     await cols.users.create_index("email", unique=True)
+    await cols.users.create_index("upi_id", unique=True)
     await cols.transactions.create_index([("user_id", 1), ("timestamp", -1)])
     await cols.notifications.create_index("user_id")
     await cols.merchants.create_index("merchant_id", unique=True)

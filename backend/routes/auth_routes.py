@@ -65,9 +65,18 @@ async def signup(request: Request):
         raise HTTPException(400, "Invalid or expired OTP")
 
     user_id = f"usr_{uuid.uuid4().hex[:8]}"
-    upi_prefix = identifier.split("@")[0] if "@" in identifier else identifier
-
+    upi_prefix = identifier.split("@")[0].lower() if "@" in identifier else identifier.lower()
+    
+    # Ensure unique UPI ID
     upi_id = f"{upi_prefix}@paytm"
+    exists = await cols.users.find_one({"upi_id": upi_id})
+    if exists:
+        # Append a short random number to make it unique but short
+        upi_id = f"{upi_prefix}{random.randint(10, 99)}@paytm"
+        # One more check just in case, though very unlikely to collide now
+        while await cols.users.find_one({"upi_id": upi_id}):
+            upi_id = f"{upi_prefix}{random.randint(100, 999)}@paytm"
+
     qr_data = f"upi://pay?pa={upi_id}&pn={name}&cu=INR"
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_data}"
 

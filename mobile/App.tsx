@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert, ActivityIndicator, StatusBar, Animated, Platfo
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AudioModule, InterruptionMode } from 'expo-audio';
 
 // Modular Components
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, BACKGROUND_COLOR } from './src/styles/theme';
@@ -25,7 +26,7 @@ import { MockService } from './src/services/MockService';
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-27418.loca.lt'; // tunnel URL for universal global access
+const BACKEND_TUNNEL = 'https://paytm-voice-api-55505.loca.lt'; // tunnel URL for universal global access
 
 const BACKEND = BACKEND_TUNNEL;
 
@@ -82,6 +83,21 @@ export default function App() {
       }
     };
     checkLogin();
+
+    // 🔊 Global Audio Session Setup for iOS Biometrics
+    (async () => {
+      try {
+        if (Platform.OS === 'ios') {
+          await AudioModule.setAudioModeAsync({
+            allowsRecording: true,
+            playsInSilentMode: true,
+          });
+          console.log("✅ Global iOS Audio Session Activated");
+        }
+      } catch (e) {
+        console.error("❌ Failed to set global audio mode:", e);
+      }
+    })();
   }, []);
 
   const authFetch = async (endpoint: string, tkn?: string) => {

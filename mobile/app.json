@@ -14,6 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+        "NSMicrophoneUsageDescription": "Paytm VoiceGuard needs access to your microphone for triple-layer voice biometric verification and secure voice payments.",
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "NSAllowsLocalNetworking": true

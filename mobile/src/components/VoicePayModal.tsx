@@ -129,12 +129,16 @@ export const VoicePayModal: React.FC<VoicePayModalProps> = ({
   const startRecording = async () => {
     try {
       if (Platform.OS === 'ios') {
-        const { Audio } = require('expo-av');
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
+        // Use the native AudioModule from expo-audio (which we already Import from on line 4)
+        await AudioModule.setAudioModeAsync({
+          allowsRecording: true,
+          playsInSilentMode: true,
+          shouldRouteThroughEarpiece: false,
         });
       }
+
+      // Small delay to ensure session is active on iOS
+      if (Platform.OS === 'ios') await new Promise(resolve => setTimeout(resolve, 100));
 
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
