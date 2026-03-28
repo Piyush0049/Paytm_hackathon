@@ -12,7 +12,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, onBellPress, isDarkMode = false }) => {
     const initials = (userName || 'U')[0].toUpperCase();
-    const paytmLogo = require('../../assets/app-logo.png');
+    const paytmLogo = { uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1774718135/app-logo_znnatr.png' };
 
     return (
         <View style={[s.topBarReal, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
@@ -22,7 +22,9 @@ export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, onBell
                 </TouchableOpacity>
                 <Image
                     source={paytmLogo}
-                    style={{ width: 120, height: 80, resizeMode: 'contain', marginLeft: 12 }}
+                    resizeMode="contain"
+                    style={{ width: 130, height: 40, marginLeft: 12 }}
+                    onError={(e) => console.log('❌ Header logo load error:', e.nativeEvent.error)}
                 />
             </View>
             <View style={s.topBarRight}>

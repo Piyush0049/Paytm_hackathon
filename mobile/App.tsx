@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator, StatusBar, Animated, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AudioModule, InterruptionMode } from 'expo-audio';
 
@@ -26,7 +26,7 @@ import { MockService } from './src/services/MockService';
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-54230.loca.lt'; // tunnel URL for universal global access
+const BACKEND_TUNNEL = 'https://paytm-voice-api-43514.loca.lt'; // tunnel URL for universal global access
 
 const BACKEND = BACKEND_TUNNEL;
 
@@ -37,11 +37,16 @@ const safeJson = async (res: Response) => {
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
-    'Poppins-Regular': Poppins_400Regular,
-    'Poppins-Medium': Poppins_500Medium,
-    'Poppins-SemiBold': Poppins_600SemiBold,
-    'Poppins-Bold': Poppins_700Bold,
+    'PlusJakartaSans-Regular': require('./assets/fonts/PlusJakartaSans_400Regular.ttf'),
+    'PlusJakartaSans-Medium': require('./assets/fonts/PlusJakartaSans_500Medium.ttf'),
+    'PlusJakartaSans-SemiBold': require('./assets/fonts/PlusJakartaSans_600SemiBold.ttf'),
+    'PlusJakartaSans-Bold': require('./assets/fonts/PlusJakartaSans_700Bold.ttf'),
   });
+
+  useEffect(() => {
+    if (fontError) console.log('❌ Font Loading Error:', fontError);
+    if (fontsLoaded) console.log('✅ Fonts Loaded Successfully');
+  }, [fontsLoaded, fontError]);
 
   const [bootstrapped, setBootstrapped] = useState(false);
 

@@ -37,7 +37,7 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, onClose, profile, isD
             <ArrowLeft size={24} color={headerText} />
           </TouchableOpacity>
           <View style={s.logoContainer}>
-            <Image source={require('../../assets/paytm_logo.png')} style={s.paytmLogo} />
+            <Image source={{ uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1774718149/paytm_logo_zjwmb5.png' }} resizeMode="contain" style={s.paytmLogo} onError={(e) => console.log('❌ QR logo load error:', e.nativeEvent.error)} />
             <Text style={[s.logoSubtitle, { color: headerText }]}>Accepted Here</Text>
           </View>
           <TouchableOpacity style={s.iconBtn}>
@@ -171,7 +171,7 @@ const s = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 16 },
   iconBtn: { padding: 8 },
   logoContainer: { alignItems: 'center' },
-  paytmLogo: { width: 90, height: 60, resizeMode: 'contain' },
+  paytmLogo: { width: 80, height: 36 },
   logoSubtitle: { fontSize: 11, fontFamily: fonts.bold, marginTop: -4 },
 
   scrollContent: { paddingHorizontal: 16, paddingBottom: 40 },

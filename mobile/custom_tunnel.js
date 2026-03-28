@@ -83,8 +83,8 @@ async function killPortSafer(port) {
                 qrcode.generate(expoUrl, { small: true });
                 console.log(`\nURL: ${expoUrl}\n`);
                 
-                console.log(`🏗️ Starting Metro Bundler...`);
-                spawn('npx', ['expo', 'start', '--offline'], { 
+                console.log(`🏗️ Starting Metro Bundler (Clearing Cache)...`);
+                spawn('npx', ['expo', 'start', '--offline', '--clear'], { 
                     stdio: 'inherit', 
                     shell: true,
                     env: {

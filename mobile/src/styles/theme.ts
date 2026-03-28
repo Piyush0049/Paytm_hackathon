@@ -15,10 +15,10 @@ export const DARK_TEXT_MUTED = '#AAAAAA';
 export const DARK_BORDER = '#333333';
 
 export const fonts = {
-  regular: 'Poppins-Regular',
-  medium: 'Poppins-Medium',
-  semiBold: 'Poppins-SemiBold',
-  bold: 'Poppins-Bold',
+  regular: 'PlusJakartaSans-Medium',
+  medium: 'PlusJakartaSans-SemiBold',
+  semiBold: 'PlusJakartaSans-Bold',
+  bold: 'PlusJakartaSans-Bold',
 };
 
 export const shadows = {

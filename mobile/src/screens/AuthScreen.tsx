@@ -26,7 +26,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   authPassword, setAuthPassword, authOtp, setAuthOtp, showOtpField, setShowOtpField,
   authLoading, handleAuth
 }) => {
-  const paytmLogo = require('../../assets/paytm_logo.png');
+  const paytmLogo = { uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1774718149/paytm_logo_zjwmb5.png' };
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
 
@@ -41,7 +41,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       <View style={s.cleanAuthHeader}>
         <Image
           source={paytmLogo}
-          style={{ width: 180, height: 100, resizeMode: 'contain' }}
+          resizeMode="contain"
+          style={{ width: 160, height: 80 }}
+          onError={(e) => console.log('❌ Auth logo load error:', e.nativeEvent.error)}
         />
       </View>
 
