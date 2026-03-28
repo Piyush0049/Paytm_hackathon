@@ -6,10 +6,11 @@ import { PAYTM_BLUE, WHITE, fonts, layout } from '../styles/theme';
 interface HeaderProps {
     userName: string;
     onProfilePress?: () => void;
+    onBellPress?: () => void;
     isDarkMode?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, isDarkMode = false }) => {
+export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, onBellPress, isDarkMode = false }) => {
     const initials = (userName || 'U')[0].toUpperCase();
     const paytmLogo = require('../../assets/app-logo.png');
 
@@ -26,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, isDark
             </View>
             <View style={s.topBarRight}>
                 <TouchableOpacity style={s.topIconReal}><Search size={22} color="#FFF" /></TouchableOpacity>
-                <TouchableOpacity style={s.topIconReal}><Bell size={22} color="#FFF" /></TouchableOpacity>
+                <TouchableOpacity style={s.topIconReal} onPress={onBellPress}><Bell size={22} color="#FFF" /></TouchableOpacity>
             </View>
         </View>
     );

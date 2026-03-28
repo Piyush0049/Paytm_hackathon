@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Alert, ActivityIndicator, StatusBar, Animated, Platform } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, StatusBar, Animated, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,7 +26,7 @@ import { MockService } from './src/services/MockService';
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-55505.loca.lt'; // tunnel URL for universal global access
+const BACKEND_TUNNEL = 'https://paytm-voice-api-10867.loca.lt'; // tunnel URL for universal global access
 
 const BACKEND = BACKEND_TUNNEL;
 
@@ -36,12 +36,21 @@ const safeJson = async (res: Response) => {
 };
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': Poppins_400Regular,
     'Poppins-Medium': Poppins_500Medium,
     'Poppins-SemiBold': Poppins_600SemiBold,
     'Poppins-Bold': Poppins_700Bold,
   });
+
+  const [bootstrapped, setBootstrapped] = useState(false);
+
+  useEffect(() => {
+    // Hide loader if fonts take too long (fallback to system fonts)
+    const timer = setTimeout(() => setBootstrapped(true), 3500);
+    if (fontsLoaded || fontError) setBootstrapped(true);
+    return () => clearTimeout(timer);
+  }, [fontsLoaded, fontError]);
 
   const [token, setToken] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
@@ -257,11 +266,12 @@ export default function App() {
   };
 
 
-  if (!fontsLoaded) {
+  if (!bootstrapped && !fontsLoaded) {
     return (
       <SafeAreaProvider>
         <View style={s.loader}>
           <ActivityIndicator size="large" color={PAYTM_LIGHT_BLUE} />
+          <Text style={{ marginTop: 20, color: '#888', fontFamily: 'System' }}>Securing your session...</Text>
         </View>
       </SafeAreaProvider>
     );
@@ -287,7 +297,14 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={[s.container, { backgroundColor: isDarkMode ? '#0D0D0D' : BACKGROUND_COLOR }]} edges={['top', 'left', 'right']}>
         <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={isDarkMode ? '#000' : PAYTM_BLUE} />
-        {subScreen !== 'scan' && <Header userName={profile?.name || 'User'} onProfilePress={() => setShowUserQR(true)} isDarkMode={isDarkMode} />}
+        {subScreen !== 'scan' && (
+          <Header 
+            userName={profile?.name || 'User'} 
+            onProfilePress={() => setShowUserQR(true)} 
+            onBellPress={() => setActiveTab('notifs')}
+            isDarkMode={isDarkMode} 
+          />
+        )}
 
         {activeTab === 'home' && (
           subScreen === 'scan' ? <ScanScreen 
