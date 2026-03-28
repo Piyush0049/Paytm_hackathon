@@ -5,7 +5,8 @@ JWT token management, password hashing, and user dependency
 import os
 import jwt
 from datetime import datetime, timedelta
-from passlib.context import CryptContext
+import hashlib
+import bcrypt
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from database import cols
@@ -15,15 +16,25 @@ JWT_SECRET = os.getenv("JWT_SECRET", "paytm_voiceguard_super_secret_key_2026_dre
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 week
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Direct bcrypt fix: bypasses passlib.ValueError for short/long passwords on Mac
+print("✅ Auth Utilities active: Using direct bcrypt (bypassing passlib bug)")
 security = HTTPBearer()
 
 # ─── Password Utilities ───
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    """Hash password using SHA-256 followed by Bcrypt to overcome 72-byte limit and avoid Passlib-Mac bugs."""
+    pre_hash = hashlib.sha256(password.encode('utf-8')).hexdigest().encode('utf-8')
+    return bcrypt.hashpw(pre_hash, bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    """Verify password by pre-hashing it first, then using direct Bcrypt verification."""
+    try:
+        if not hashed: return False
+        pre_hash = hashlib.sha256(plain.encode('utf-8')).hexdigest().encode('utf-8')
+        return bcrypt.checkpw(pre_hash, hashed.encode('utf-8'))
+    except Exception as e:
+        print(f"⚠️  Verification Error: {e}")
+        return False
 
 # ─── JWT Utilities ───
 def create_access_token(data: dict) -> str:
