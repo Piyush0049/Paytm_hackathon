@@ -19,6 +19,7 @@ export const fonts = {
   medium: 'PlusJakartaSans-Bold',
   semiBold: 'PlusJakartaSans-ExtraBold',
   bold: 'PlusJakartaSans-ExtraBold',
+  extraBold: 'PlusJakartaSans-ExtraBold',
 };
 
 export const shadows = {

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Alert, ActivityIndicator, StatusBar, Animated, 
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AudioModule, InterruptionMode } from 'expo-audio';
+import { AudioModule, InterruptionMode, useAudioPlayer } from 'expo-audio';
 
 // Modular Components
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, BACKGROUND_COLOR } from './src/styles/theme';
@@ -23,13 +23,14 @@ import { SuccessOverlay } from './src/components/SuccessOverlay';
 import { QRModal } from './src/components/QRModal';
 import { MockService } from './src/services/MockService';
 import { MerchantDashboard } from './src/screens/MerchantDashboard';
+import { PaymentSuccessScreen } from './src/screens/PaymentSuccessScreen';
 
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-94933.loca.lt'; // tunnel URL for universal global access
-
+const BACKEND_TUNNEL = 'https://paytm-voice-api-54868.loca.lt'; // tunnel URL for universal global access
 const BACKEND = BACKEND_TUNNEL;
+const PAYTM_SUCCESS_SOUND = 'https://res.cloudinary.com/da2imhgtf/video/upload/v1774766529/New_Project_5_w3uzoe.mp3';
 
 const safeJson = async (res: Response) => {
   const txt = await res.text();
@@ -38,12 +39,14 @@ const safeJson = async (res: Response) => {
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
-    'PlusJakartaSans-Regular': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-Regular.ttf',
-    'PlusJakartaSans-Medium': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-Medium.ttf',
-    'PlusJakartaSans-SemiBold': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-SemiBold.ttf',
-    'PlusJakartaSans-Bold': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-Bold.ttf',
-    'PlusJakartaSans-ExtraBold': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-ExtraBold.ttf',
+    'PlusJakartaSans-Regular': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-Regular.ttf',
+    'PlusJakartaSans-Medium': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-Medium.ttf',
+    'PlusJakartaSans-SemiBold': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-SemiBold.ttf',
+    'PlusJakartaSans-Bold': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-Bold.ttf',
+    'PlusJakartaSans-ExtraBold': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-ExtraBold.ttf',
   });
+
+  const successPlayer = useAudioPlayer(PAYTM_SUCCESS_SOUND);
 
   useEffect(() => {
     if (fontError) console.log('❌ Font Loading Error:', fontError);
@@ -75,11 +78,12 @@ export default function App() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showUserQR, setShowUserQR] = useState(false);
-  const [scannedRecipient, setScannedRecipient] = useState<{id: string, name: string} | null>(null);
+  const [scannedRecipient, setScannedRecipient] = useState<{ id: string, name: string } | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showVoicePay, setShowVoicePay] = useState(false);
-  const [voicePayPreload, setVoicePayPreload] = useState<{amt: string, upi: string} | null>(null);
+  const [voicePayPreload, setVoicePayPreload] = useState<{ amt: string, upi: string } | null>(null);
   const [successMsg, setSuccessMsg] = useState({ visible: false, title: '', sub: '' });
+  const [successData, setSuccessData] = useState<{ amount: number, name: string, duration: number } | null>(null);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -120,10 +124,10 @@ export default function App() {
   const authFetch = async (endpoint: string, tkn?: string) => {
     const t = tkn || token;
     const res = await fetch(`${BACKEND}${endpoint}`, {
-      headers: { 
-        'Authorization': `Bearer ${t}`, 
-        'Content-Type': 'application/json', 
-        'Bypass-Tunnel-Reminder': 'true' 
+      headers: {
+        'Authorization': `Bearer ${t}`,
+        'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'true'
       }
     });
 
@@ -135,13 +139,13 @@ export default function App() {
     }
 
     const text = await res.text();
-    try { 
-      return JSON.parse(text); 
-    } catch { 
+    try {
+      return JSON.parse(text);
+    } catch {
       if (text.includes('localtunnel.me') || text.includes('loca.lt')) {
         throw new Error('Tunnel is blocked by your network provider or ISP.');
       }
-      throw new Error('Invalid response from server'); 
+      throw new Error('Invalid response from server');
     }
   };
 
@@ -150,7 +154,7 @@ export default function App() {
       ...(options.headers || {}),
       'Bypass-Tunnel-Reminder': 'true',
     };
-    
+
     if (token && !headers['Authorization']) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -166,13 +170,13 @@ export default function App() {
     try {
       const p = await authFetch('/user/profile');
       setProfile(p);
-      
+
       const b = await authFetch('/user/balance');
       setBalance(b);
-      
+
       const t = await authFetch('/user/transactions?limit=20');
       setTransactions(t.transactions || []);
-      
+
       const n = await authFetch('/user/notifications');
       setNotifications(n.notifications || []);
     } catch (e) { console.log('Load error:', e); }
@@ -190,10 +194,10 @@ export default function App() {
       if (!showOtpField) {
         const res = await globalFetch(`${BACKEND}/auth/send-otp`, {
           method: 'POST',
-          body: JSON.stringify({ 
-            email: authEmail.toLowerCase().trim(), 
-            password: authPassword, 
-            is_login: authMode === 'login' 
+          body: JSON.stringify({
+            email: authEmail.toLowerCase().trim(),
+            password: authPassword,
+            is_login: authMode === 'login'
           })
         });
         const data = await safeJson(res);
@@ -202,11 +206,11 @@ export default function App() {
         setSuccessMsg({ visible: true, title: 'OTP Sent', sub: data.message || 'Check your email' });
       } else {
         const endpoint = authMode === 'signup' ? '/auth/signup' : '/auth/login';
-        
-        let body: any = { 
-          email: authEmail.toLowerCase().trim(), 
-          password: authPassword, 
-          otp: authOtp 
+
+        let body: any = {
+          email: authEmail.toLowerCase().trim(),
+          password: authPassword,
+          otp: authOtp
         };
 
         if (authMode === 'signup') {
@@ -236,6 +240,7 @@ export default function App() {
 
   const handleTransfer = async (amount: number, recipient: string, password: string) => {
     setAuthLoading(true);
+    const start = Date.now();
     try {
       const res = await globalFetch(`${BACKEND}/payment/upi`, {
         method: 'POST',
@@ -243,8 +248,17 @@ export default function App() {
       });
       const data = await safeJson(res);
       if (!res.ok) throw new Error(data.detail || 'Transfer failed');
-      setSubScreen(null);
-      setSuccessMsg({ visible: true, title: 'Money Sent', sub: `₹${amount} sent to ${data.recipient || recipient}` });
+      const end = Date.now();
+
+      // Trigger success sound immediately
+      if (successPlayer) successPlayer.play();
+
+      setSuccessData({
+        amount,
+        name: data.recipient || recipient,
+        duration: (end - start) / 1000
+      });
+      setSubScreen('payment_success');
       loadAllData();
     } catch (e: any) { Alert.alert('Error', e.message); }
     setAuthLoading(false);
@@ -258,7 +272,7 @@ export default function App() {
     setShowOtpField(false); setActiveTab('home');
   };
 
-  const processVoicePlay = (preload?: {amt: string, upi: string}) => {
+  const processVoicePlay = (preload?: { amt: string, upi: string }) => {
     if (preload) {
       setVoicePayPreload(preload);
     } else {
@@ -324,55 +338,61 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={[s.container, { backgroundColor: isDarkMode ? '#0D0D0D' : BACKGROUND_COLOR }]} edges={['top', 'left', 'right']}>
         <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={isDarkMode ? '#000' : PAYTM_BLUE} />
-        {subScreen !== 'scan' && (
-          <Header 
-            userName={profile?.name || 'User'} 
-            onProfilePress={() => setShowUserQR(true)} 
+        {subScreen !== 'scan' && subScreen !== 'payment_success' && (
+          <Header
+            userName={profile?.name || 'User'}
+            onProfilePress={() => setShowUserQR(true)}
             onBellPress={() => setActiveTab('notifs')}
-            isDarkMode={isDarkMode} 
+            isDarkMode={isDarkMode}
           />
         )}
 
         {activeTab === 'home' && (
-          subScreen === 'scan' ? <ScanScreen 
-            onBack={() => setSubScreen(null)} 
-            onScan={(data) => { setScannedRecipient(data); setSubScreen('transfer'); }} 
-            token={token}
-            backendUrl={BACKEND}
-          /> :
-          subScreen === 'transfer' ? <TransferScreen 
-            onBack={() => { setSubScreen(null); setScannedRecipient(null); }} 
-            onTransfer={(a, r, p) => { setScannedRecipient(null); handleTransfer(a, r, p); }} 
-            onVoicePay={(a, r) => { setScannedRecipient(null); setSubScreen(null); processVoicePlay({ amt: a.toString(), upi: r }); }}
-            initialRecipient={scannedRecipient || undefined}
-            isDarkMode={isDarkMode}
-          /> :
-          subScreen === 'recharge' ? <RechargeScreen onBack={() => setSubScreen(null)} onRecharge={(n, a) => { setSubScreen(null); handleRecharge(n, a); }} /> :
-          subScreen === 'history' ? <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} /> :
-          subScreen === 'merchant_dashboard' ? <MerchantDashboard onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} isDarkMode={isDarkMode} /> :
-          subScreen === 'voiceguard' ? <VoiceEnrollScreen
+          subScreen === 'scan' ? <ScanScreen
             onBack={() => setSubScreen(null)}
-            onComplete={() => { setSubScreen(null); loadAllData(); }}
+            onScan={(data) => { setScannedRecipient(data); setSubScreen('transfer'); }}
             token={token}
             backendUrl={BACKEND}
           /> :
-          <HomeScreen
-            balance={balance}
-            transactions={transactions}
-            setSubScreen={setSubScreen}
-            isDarkMode={isDarkMode}
-            onAction={(type) => {
-              if (type === 'scan' || type === 'upi') {
-                setSubScreen(type === 'scan' ? 'scan' : 'transfer');
-              } else if (type === 'mob') {
-                setSubScreen('recharge');
-              } else if (type === 'voiceguard') {
-                setSubScreen('voiceguard');
-              } else if (type === 'add') {
-                Alert.alert('Add Money', 'Redirecting to secure gateway...');
-              }
-            }}
-          />
+            subScreen === 'transfer' ? <TransferScreen
+              onBack={() => { setSubScreen(null); setScannedRecipient(null); }}
+              onTransfer={(a, r, p) => { setScannedRecipient(null); handleTransfer(a, r, p); }}
+              onVoicePay={(a, r) => { setScannedRecipient(null); setSubScreen(null); processVoicePlay({ amt: a.toString(), upi: r }); }}
+              initialRecipient={scannedRecipient || undefined}
+              isDarkMode={isDarkMode}
+            /> :
+              subScreen === 'recharge' ? <RechargeScreen onBack={() => setSubScreen(null)} onRecharge={(n, a) => { setSubScreen(null); handleRecharge(n, a); }} /> :
+                subScreen === 'history' ? <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} /> :
+                  subScreen === 'merchant_dashboard' ? <MerchantDashboard onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} isDarkMode={isDarkMode} /> :
+                    subScreen === 'voiceguard' ? <VoiceEnrollScreen
+                      onBack={() => setSubScreen(null)}
+                      onComplete={() => { setSubScreen(null); loadAllData(); }}
+                      token={token}
+                      backendUrl={BACKEND}
+                    /> :
+                      subScreen === 'payment_success' ? <PaymentSuccessScreen
+                        amount={successData?.amount || 0}
+                        recipientName={successData?.name || 'Unknown'}
+                        duration={successData?.duration || 0}
+                        onDone={() => setSubScreen(null)}
+                      /> :
+                        <HomeScreen
+                          balance={balance}
+                          transactions={transactions}
+                          setSubScreen={setSubScreen}
+                          isDarkMode={isDarkMode}
+                          onAction={(type) => {
+                            if (type === 'scan' || type === 'upi') {
+                              setSubScreen(type === 'scan' ? 'scan' : 'transfer');
+                            } else if (type === 'mob') {
+                              setSubScreen('recharge');
+                            } else if (type === 'voiceguard') {
+                              setSubScreen('voiceguard');
+                            } else if (type === 'add') {
+                              Alert.alert('Add Money', 'Redirecting to secure gateway...');
+                            }
+                          }}
+                        />
         )}
         {activeTab === 'history' && <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} token={token} backendUrl={BACKEND} />}
         {activeTab === 'notifs' && <AlertsScreen notifications={notifications} isDarkMode={isDarkMode} />}
@@ -390,7 +410,16 @@ export default function App() {
           onPaymentSuccess={(data: any) => {
             setShowVoicePay(false);
             setVoicePayPreload(null);
-            setSuccessMsg({ visible: true, title: 'Voice Payment Sent', sub: `₹${data.amount} sent to ${data.recipient}` });
+
+            // Trigger success sound immediately
+            if (successPlayer) successPlayer.play();
+
+            setSuccessData({
+              amount: data.amount,
+              name: data.recipient || 'Customer',
+              duration: data.process_time || 2.45
+            });
+            setSubScreen('payment_success');
             loadAllData();
           }}
           onEnrollPress={() => setSubScreen('voiceguard')}
@@ -404,17 +433,17 @@ export default function App() {
           />
         )}
 
-        <SuccessOverlay 
-          visible={successMsg.visible} 
-          message={successMsg.title} 
+        <SuccessOverlay
+          visible={successMsg.visible}
+          message={successMsg.title}
           submessage={successMsg.sub}
           onFinish={() => setSuccessMsg({ ...successMsg, visible: false })}
         />
 
-        <QRModal 
-          visible={showUserQR} 
-          onClose={() => setShowUserQR(false)} 
-          profile={profile} 
+        <QRModal
+          visible={showUserQR}
+          onClose={() => setShowUserQR(false)}
+          profile={profile}
           isDarkMode={isDarkMode}
           setIsDarkMode={setIsDarkMode}
         />

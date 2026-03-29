@@ -49,17 +49,18 @@ async def generate_ai_insights(merchant_name: str, stats: dict) -> dict:
 
     Respond with this EXACT JSON schema only, no extra text:
     {{
-      "daily_summary": "one punchy sentence for today",
-      "highlights": ["2-3 ultra-concise numerical highlights"],
+      "daily_summary": "one very simple sentence about today's performance",
+      "highlights": ["2-3 short, clear points in plain English"],
       "trend": "up" or "down" or "stable",
       "health_score": number 0-100,
-      "top_recommendation": "strictly 1 actionable sentence",
-      "category_distribution": {{"CategoryName": percentage_number}}, 
+      "top_recommendation": "1 simple, helpful business tip",
+      "insufficient_data": true or false,
       "weekly_comparison": {{"current_week": amount, "previous_week": amount}},
-      "peak_hours": [list of 4-5 core hour ranges e.g. "Morning", "Afternoon", "Evening", "Night"],
-      "peak_hour_values": [comparative activity numbers for the peak_hours],
-      "forecast_values": [7 revenue numbers for next 7 days],
-      "forecast_labels": ["7 short day names"]
+      "peak_hours": ["Morning", "Afternoon", "Evening", "Night"],
+      "peak_hour_values": [40, 60, 85, 30],
+      "forecast_values": [7 revenue numbers],
+      "forecast_labels": ["7 day names"],
+      "risk_alert": "none" or "simple warning if needed"
     }}"""
 
     if not GROQ_API_KEY:
@@ -175,21 +176,28 @@ def _fallback_analysis(merchant_name: str, stats: dict) -> dict:
         tip = "Maintain peak-hour staffing to capitalize on growing transaction volume"
 
     import datetime
-    today_dt = datetime.datetime.now()
-    labels = [(today_dt + datetime.timedelta(days=i)).strftime('%a') for i in range(1, 8)]
+    # Data sufficiency check
+    insufficient = t_count < 5
+    if insufficient:
+        daily_txt = "Not enough data for full analysis"
+        highlights = ["Analysis will be ready after 1-2 weeks of use", "Keep transacting to unlock AI insights"]
+    else:
+        daily_txt = "Overall sales are healthy today"
+        highlights = ["Strong customer footfall tonight", "Highest sales from UPI payments"]
 
     return {
-        "daily_summary": daily_summary,
-        "highlights": [daily_summary, weekly_summary],
+        "daily_summary": daily_txt,
+        "highlights": highlights,
         "trend": trend,
         "health_score": score,
-        "top_recommendation": tip,
-        "category_distribution": {"Food": 45, "Travel": 25, "Bazaar": 20, "Others": 10},
-        "weekly_comparison": {"current_week": round(t_rev * 1.12, 2), "previous_week": t_rev},
+        "top_recommendation": tip if not insufficient else "Continue using Paytm for business to see AI tips",
+        "insufficient_data": insufficient,
+        "weekly_comparison": {"current_week": t_rev, "previous_week": t_rev * 0.9},
         "peak_hours": ["Morning", "Afternoon", "Evening", "Night"],
-        "peak_hour_values": [12, 45, 80, 20],
-        "forecast_values": [round(t_rev * (1.1 ** i), 2) for i in range(1, 8)], # Mock 10% growth
+        "peak_hour_values": [30, 50, 95, 20] if not insufficient else [0, 0, 0, 0],
+        "forecast_values": [round(t_rev * (1.1 ** i), 2) for i in range(1, 8)] if not insufficient else [],
         "forecast_labels": labels,
+        "risk_alert": "none",
         "source": "rule_based_fallback",
         "model": "built-in"
     }

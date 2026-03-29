@@ -42,8 +42,8 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
   if (loading) {
     return (
       <View style={[s.center, { backgroundColor: bg }]}>
-         {/* Premium background top for loader screen */}
-         <View style={s.topBackground} />
+        {/* Premium background top for loader screen */}
+        <View style={s.topBackground} />
         <ActivityIndicator size="large" color={PAYTM_BLUE} />
       </View>
     );
@@ -62,7 +62,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
   }
 
   const { merchant, stats, ai_insights, recent_events, daily_chart } = data;
-  
+
   // Extract last 7 days of revenue to build a mini chart
   const weeklyChartData = (daily_chart || []).slice(-7);
   const maxRevenue = weeklyChartData.reduce((max: number, d: any) => Math.max(max, d.revenue), 1) * 1.2; // Add 20% padding at top
@@ -82,17 +82,17 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
       </View>
 
       <ScrollView contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>
-        
+
         {/* Main Floating Dashboard Card */}
         <View style={[s.floatingCard, { backgroundColor: surface, shadowColor: isDarkMode ? '#000' : '#CCC' }]}>
           <Text style={[s.sectionSubtitle, { color: textMuted }]}>Today's Revenue</Text>
           <Text style={[s.mainBalance, { color: textClr }]}>₹{stats.today.revenue.toLocaleString()}</Text>
           <View style={s.trendPill}>
-            {stats.today.revenue >= stats.yesterday.revenue ? 
+            {stats.today.revenue >= stats.yesterday.revenue ?
               <>
                 <TrendingUp size={14} color={SUCCESS_GREEN} />
                 <Text style={[s.trendText, { color: SUCCESS_GREEN }]}>+{Math.abs(stats.today.revenue - stats.yesterday.revenue)} vs Yesterday</Text>
-              </> : 
+              </> :
               <>
                 <TrendingDown size={14} color={ERROR_RED} />
                 <Text style={[s.trendText, { color: ERROR_RED }]}>-{Math.abs(stats.yesterday.revenue - stats.today.revenue)} vs Yesterday</Text>
@@ -112,7 +112,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
             </View>
 
             {/* Daily Summary */}
-            <Text style={[s.aiBannerText, { color: textClr, marginBottom: 16 }]}>{ai_insights.daily_summary}</Text>
+            <Text style={[s.aiSummaryMain, { color: textClr }]}>{ai_insights.daily_summary}</Text>
 
             {/* Structured Highlights (Bulleted List) */}
             <View style={s.highlightsContainer}>
@@ -125,82 +125,70 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
             </View>
 
             {/* AI Forecast Graph */}
-            {ai_insights.forecast_values && (
-              <View style={s.aiForecastContainer}>
-                <View style={s.cardHeaderRow}>
-                  <Activity size={16} color={PAYTM_BLUE} />
-                  <Text style={[s.aiDetailLabel, { color: textClr, marginLeft: 8 }]}>AI Predicted Revenue (Next 7 Days)</Text>
+            {ai_insights.insufficient_data ? (
+              <View style={[s.aiChartWrapper, { height: 100, justifyContent: 'center', backgroundColor: isDarkMode ? 'rgba(255,255,255,0.03)' : '#F1F5F9', borderRadius: 12, marginVertical: 10 }]}>
+                <Text style={[s.aiDetailLabel, { textAlign: 'center', color: textClr, fontSize: 13, lineHeight: 20 }]}>
+                  More data is needed for weekly insights.
+                </Text>
+              </View>
+            ) : (
+              ai_insights.forecast_values && (
+                <View style={s.aiForecastContainer}>
+                  <View style={s.cardHeaderRow}>
+                    <Activity size={16} color={PAYTM_BLUE} />
+                    <Text style={[s.aiDetailLabel, { color: textClr, marginLeft: 8 }]}>AI Predicted Revenue (Next 7 Days)</Text>
+                  </View>
+                  <View style={[s.forecastGraph, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.03)' : '#F1F5F9' }]}>
+                    {ai_insights.forecast_values.map((val: number, idx: number) => {
+                      const maxForecast = Math.max(...ai_insights.forecast_values, 1);
+                      const hP = (val / maxForecast) * 65;
+                      const label = ai_insights.forecast_labels ? ai_insights.forecast_labels[idx] : `D+${idx + 1}`;
+                      return (
+                        <View key={idx} style={s.forecastBar}>
+                          <Text style={[s.forecastValue, { color: textClr }]}>₹{val > 999 ? `${(val / 1000).toFixed(0)}k` : Math.round(val)}</Text>
+                          <View style={[s.forecastFill, { height: `${hP}%`, backgroundColor: PAYTM_BLUE, opacity: 0.3 + (idx * 0.1) }]} />
+                          <Text style={[s.forecastLabel, { color: textMuted }]}>{label.substring(0, 3)}</Text>
+                        </View>
+                      )
+                    })}
+                  </View>
                 </View>
-                <View style={[s.forecastGraph, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.03)' : '#F1F5F9' }]}>
-                  {ai_insights.forecast_values.map((val: number, idx: number) => {
-                    const maxForecast = Math.max(...ai_insights.forecast_values, 1);
-                    const hP = (val / maxForecast) * 65; // Max height to leave room for value text
-                    const label = ai_insights.forecast_labels ? ai_insights.forecast_labels[idx] : `D+${idx+1}`;
-                    return (
-                      <View key={idx} style={s.forecastBar}>
-                        <Text style={[s.forecastValue, { color: textClr }]}>₹{val > 999 ? `${(val/1000).toFixed(0)}k` : Math.round(val)}</Text>
-                        <View style={[s.forecastFill, { height: `${hP}%`, backgroundColor: PAYTM_BLUE, opacity: 0.3 + (idx * 0.1) }]} />
-                        <Text style={[s.forecastLabel, { color: textMuted }]}>{label}</Text>
-                      </View>
-                    );
-                  })}
+              )
+            )}
+
+            {ai_insights.top_recommendation && (
+              <View style={[s.aiTipBox, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : '#F8FAFC' }]}>
+                <View style={s.aiHeaderRow}>
+                  <Lightbulb size={16} color={PAYTM_BLUE} />
+                  <Text style={[s.aiTipLabel, { color: PAYTM_BLUE, marginLeft: 8 }]}>Strategy Tip</Text>
                 </View>
+                <Text style={[s.aiTipText, { color: textClr }]}>{ai_insights.top_recommendation}</Text>
               </View>
             )}
 
-            {/* Recommendation */}
-            <View style={[s.aiTipBox, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : '#F8FAFC' }]}>
-              <View style={s.aiHeaderRow}>
-                <Lightbulb size={16} color={PAYTM_BLUE} />
-                <Text style={[s.aiTipLabel, { color: PAYTM_BLUE, marginLeft: 8 }]}>Strategy Tip</Text>
-              </View>
-              <Text style={[s.aiTipText, { color: textClr }]}>{ai_insights.top_recommendation}</Text>
-            </View>
-
-            {ai_insights.risk_alert !== 'none' && (
+            {ai_insights.risk_alert && ai_insights.risk_alert.toLowerCase() !== 'none' && ai_insights.risk_alert.trim() !== '' && (
               <View style={[s.aiRiskBox, { backgroundColor: 'rgba(211, 47, 47, 0.05)' }]}>
                 <AlertTriangle size={14} color="#D32F2F" />
                 <Text style={s.aiRiskText}>{ai_insights.risk_alert}</Text>
               </View>
             )}
 
-            {/* NEW GRAPH: Categorical Spending Breakdown */}
-            {ai_insights.category_distribution && (
-              <View style={s.aiChartWrapper}>
-                <View style={s.cardHeaderRow}>
-                  <Zap size={16} color={PAYTM_BLUE} />
-                  <Text style={[s.aiDetailLabel, { color: textClr, marginLeft: 8 }]}>Business Category Mix</Text>
-                </View>
-                {Object.entries(ai_insights.category_distribution).map(([cat, val]: any, i) => (
-                  <View key={i} style={s.progressRow}>
-                    <View style={s.progressLabelRow}>
-                      <Text style={[s.progressLabel, { color: textClr }]}>{cat}</Text>
-                      <Text style={[s.progressValue, { color: PAYTM_BLUE }]}>{val}%</Text>
-                    </View>
-                    <View style={[s.progressBg, { backgroundColor: isDarkMode ? '#2A2A2A' : '#F1F5F9' }]}>
-                      <View style={[s.progressFill, { width: `${val}%`, backgroundColor: i % 2 === 0 ? PAYTM_BLUE : SUCCESS_GREEN }]} />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
-
             {/* NEW GRAPH: Peak Traffic Density */}
             {ai_insights.peak_hours && (
-               <View style={s.aiChartWrapper}>
+              <View style={s.aiChartWrapper}>
                 <View style={s.cardHeaderRow}>
                   <Activity size={16} color={SUCCESS_GREEN} />
                   <Text style={[s.aiDetailLabel, { color: textClr, marginLeft: 8 }]}>Peak Traffic Density</Text>
                 </View>
                 <View style={s.trafficGrid}>
                   {ai_insights.peak_hours.map((hour: string, idx: number) => {
-                    const activity = ai_insights.peak_hour_values[idx];
+                    const activity = Math.max(ai_insights.peak_hour_values?.[idx] || 0, 15);
                     return (
                       <View key={idx} style={s.trafficColumn}>
-                        <View style={[s.trafficBar, { height: (activity / 100) * 50, backgroundColor: idx === 2 ? SUCCESS_GREEN : PAYTM_BLUE }]} />
+                        <View style={[s.trafficBar, { height: (activity / 100) * 55, backgroundColor: idx === 2 ? SUCCESS_GREEN : PAYTM_BLUE }]} />
                         <Text style={[s.trafficLabel, { color: textMuted }]}>{hour}</Text>
                       </View>
-                    );
+                    )
                   })}
                 </View>
               </View>
@@ -217,7 +205,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
               <BarChart2 size={18} color={PAYTM_LIGHT_BLUE} />
               <Text style={[s.cardTitle, { color: textClr }]}>7-Day Revenue Trends</Text>
             </View>
-            
+
             <View style={s.graphContainer}>
               {weeklyChartData.map((d: any, idx: number) => {
                 const heightPercentage = Math.max((d.revenue / maxRevenue) * 100, 5); // Minimum 5% height
@@ -273,7 +261,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
               </View>
             ))
           ) : (
-             <Text style={[s.noDataText, { color: textMuted }]}>No transactions yet. Spread your QR code!</Text>
+            <Text style={[s.noDataText, { color: textMuted }]}>No transactions yet. Spread your QR code!</Text>
           )}
         </View>
 
@@ -285,16 +273,16 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
 const s = StyleSheet.create({
   container: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  
+
   // Premium Layout Base
   topBackground: { height: 200, width: '100%', backgroundColor: PAYTM_BLUE, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, position: 'absolute', top: 0 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 50, paddingBottom: 16 },
   headerTitle: { fontSize: 18, fontFamily: fonts.bold, color: WHITE },
   backBtn: { padding: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20 },
   backBtnFail: { marginTop: 20, backgroundColor: PAYTM_BLUE, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
-  
+
   scrollContent: { paddingHorizontal: 20, paddingTop: 4 },
-  
+
   // Floating Top Card
   floatingCard: { borderRadius: 24, padding: 24, alignItems: 'center', elevation: 4, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.1, shadowRadius: 10, marginBottom: 20 },
   sectionSubtitle: { fontSize: 13, fontFamily: fonts.medium, marginBottom: 8 },
@@ -308,18 +296,19 @@ const s = StyleSheet.create({
   aiBannerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   aiIconBox: { width: 34, height: 34, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 10 },
   aiBannerTitle: { fontSize: 16, fontFamily: fonts.bold },
-  aiBannerText: { fontSize: 14, fontFamily: fonts.medium, lineHeight: 22 },
-  
+  aiSummaryMain: { fontSize: 14, fontFamily: fonts.bold, lineHeight: 22, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: PAYTM_BLUE, paddingLeft: 12 },
+  aiBannerText: { fontSize: 13, fontFamily: fonts.medium, lineHeight: 20 },
+
   aiTipBox: { padding: 14, borderRadius: 16, marginTop: 14 },
   aiHeaderRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   aiTipLabel: { fontSize: 13, fontFamily: fonts.bold },
   aiTipText: { fontSize: 13, fontFamily: fonts.medium, lineHeight: 20 },
-  
+
   aiDetailedContainer: { marginTop: 10 },
   aiDetailItem: { flexDirection: 'row', marginBottom: 16 },
   aiDetailIcon: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   aiDetailBody: { flex: 1 },
-  aiDetailLabel: { fontSize: 11, fontFamily: fonts.bold, textTransform: 'uppercase', marginBottom: 2 },
+  aiDetailLabel: { fontSize: 11, fontFamily: fonts.bold, marginBottom: 2 },
   aiDetailText: { fontSize: 13, fontFamily: fonts.medium, lineHeight: 18 },
 
   aiRiskBox: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12, marginTop: 10, borderWidth: 1, borderColor: 'rgba(211, 47, 47, 0.2)' },
