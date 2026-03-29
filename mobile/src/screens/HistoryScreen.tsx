@@ -81,7 +81,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
       {isUnlocked ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
           {/* ─── Balance Card ─── */}
-          <View style={[s.balanceCard, { backgroundColor: isDarkMode ? '#333333' : PAYTM_BLUE }]}>
+          <View style={[s.balanceCard, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }]}>
             <View style={s.balanceCardHeader}>
               <View style={s.balanceLockBadge}>
                 <ShieldCheck size={14} color="#21C17C" />
@@ -143,13 +143,13 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
         /* ─── Locked State ─── */
         <View style={s.lockedContainer}>
           <View style={[s.lockedCard, { backgroundColor: surface }]}>
-            <View style={[s.lockedIconCircle, { backgroundColor: isDarkMode ? '#1A67B8' : '#EBF8FF' }]}>
-              <Lock size={40} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} />
+            <View style={[s.lockedIconCircle, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#EBF8FF' }]}>
+              <Lock size={40} color={isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE} />
             </View>
             <Text style={[s.lockedTitle, { color: text }]}>Balance is Protected</Text>
             <Text style={[s.lockedSubtitle, { color: textMuted }]}>Enter your password to view your{'\n'}account balance and transaction history</Text>
             <TouchableOpacity
-              style={s.unlockBtn}
+              style={[s.unlockBtn, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }]}
               onPress={() => { setPassword(''); setShowPasswordModal(true); }}
             >
               <Lock size={18} color={WHITE} style={{ marginRight: 8 }} />
@@ -164,8 +164,8 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
         <View style={s.modalOverlay}>
           <View style={[s.modalContainer, { backgroundColor: isDarkMode ? '#1E1E1E' : WHITE }]}>
             <View style={s.modalHandle} />
-            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? '#1A67B8' : '#EBF8FF' }]}>
-              <Lock size={32} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} />
+            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#EBF8FF' }]}>
+              <Lock size={32} color={isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE} />
             </View>
             <Text style={[s.modalTitle, { color: text }]}>Verify Identity</Text>
             <Text style={[s.modalSubtitle, { color: textMuted }]}>Enter your account password to access balance & transaction history</Text>
@@ -187,7 +187,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ transactions, isDa
             </View>
 
             <TouchableOpacity
-              style={[s.verifyBtn, !password && { backgroundColor: '#A0AEC0' }]}
+              style={[s.verifyBtn, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }, !password && { backgroundColor: '#A0AEC0' }]}
               onPress={handleVerify}
               disabled={!password || verifying}
             >

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Home, ScrollText, Mic, Bell, User } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, WHITE, fonts } from '../styles/theme';
 
 interface NavbarProps {
   activeTab: string;
@@ -35,8 +35,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, setShow
             </View>
           ) : (
             <View style={s.tabContentReal}>
-              <tab.icon size={24} color={activeTab === tab.id ? PAYTM_LIGHT_BLUE : '#888'} />
-              <Text style={[s.tabLabelReal, activeTab === tab.id && { color: PAYTM_LIGHT_BLUE, fontWeight: '700' }]}>
+              <tab.icon size={24} color={activeTab === tab.id ? (isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_LIGHT_BLUE) : '#888'} />
+              <Text style={[s.tabLabelReal, activeTab === tab.id && { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_LIGHT_BLUE, fontWeight: '700' }]}>
                 {tab.label}
               </Text>
             </View>

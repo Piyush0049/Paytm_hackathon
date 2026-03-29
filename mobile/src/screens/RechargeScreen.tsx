@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, useColorScheme } from 'react-native';
 import { ChevronLeft, Search, Phone, ShieldCheck } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, SUCCESS_GREEN, WHITE, BACKGROUND_COLOR, fonts } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, SUCCESS_GREEN, WHITE, BACKGROUND_COLOR, fonts } from '../styles/theme';
 
 interface RechargeScreenProps {
   onBack: () => void;
@@ -28,7 +28,7 @@ export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRechar
   return (
     <View style={[s.container, { backgroundColor: bg }]}>
       {/* Header */}
-      <View style={[s.header, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE }]}>
+      <View style={[s.header, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }]}>
         <TouchableOpacity onPress={onBack} style={s.backBtn}>
           <ChevronLeft color={WHITE} size={28} />
         </TouchableOpacity>
@@ -64,7 +64,7 @@ export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRechar
                 <Text style={[s.opCircleLoc, { color: textMuted }]}>Uttar Pradesh (East)</Text>
               </View>
               <TouchableOpacity style={s.changeBtn}>
-                <Text style={[s.changeText, { color: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]}>Change</Text>
+                <Text style={[s.changeText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_LIGHT_BLUE }]}>Change</Text>
               </TouchableOpacity>
             </View>
 
@@ -79,7 +79,7 @@ export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRechar
                   <Text style={[s.planPrice, { color: textClr }]}>₹{plan.price}</Text>
                   <View style={[s.planTag, { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' }]}><Text style={[s.planTagText, { color: textMuted }]}>Validity: {plan.validity}</Text></View>
                 </View>
-                <Text style={[s.planData, { color: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]}>{plan.data}</Text>
+                <Text style={[s.planData, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_LIGHT_BLUE }]}>{plan.data}</Text>
                 <Text style={[s.planDesc, { color: textMuted }]}>{plan.desc}</Text>
               </TouchableOpacity>
             ))}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Modal, Dimensions, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { ArrowLeft, Bell, Copy, BadgeCheck, Landmark, Share, Plus, Settings2, Moon, Sun, Store } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED, DARK_BORDER } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED, DARK_BORDER } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -26,6 +26,7 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, onClose, profile, isD
   const textMuted = isDarkMode ? DARK_TEXT_MUTED : '#666';
   const border = isDarkMode ? DARK_BORDER : '#EEE';
   const headerText = isDarkMode ? WHITE : '#111';
+  const themeBlue = isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE;
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
@@ -55,9 +56,9 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, onClose, profile, isD
               <View style={s.avatarContainer}>
                 <View style={s.avatar}>
                   {profile.role === 'merchant' ? (
-                    <Store size={24} color={PAYTM_LIGHT_BLUE} />
+                    <Store size={24} color={isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_LIGHT_BLUE} />
                   ) : (
-                    <Text style={s.avatarText}>{(profile.name || 'U')[0].toUpperCase()}</Text>
+                    <Text style={[s.avatarText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_LIGHT_BLUE }]}>{(profile.name || 'U')[0].toUpperCase()}</Text>
                   )}
                 </View>
               </View>
@@ -89,7 +90,7 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, onClose, profile, isD
             <View style={s.qrWrapper}>
               <View style={s.qrSplitFrame}>
                 <View style={[s.qrHalf, { backgroundColor: PAYTM_LIGHT_BLUE }]} />
-                <View style={[s.qrHalf, { backgroundColor: PAYTM_BLUE }]} />
+                <View style={[s.qrHalf, { backgroundColor: themeBlue }]} />
 
                 <View style={s.qrInnerBg}>
                   <Image source={{ uri: qrUrl }} style={s.qrImg} />
@@ -105,7 +106,7 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, onClose, profile, isD
           {/* <View style={[s.bankPill, { backgroundColor: surface, borderColor: border }]}>
             <View style={s.bankLeft}>
               <View style={s.bankIconBg}>
-                <Landmark size={16} color={PAYTM_BLUE} />
+                <Landmark size={16} color={themeBlue} />
               </View>
               <Text style={[s.bankName, { color: text }]}>State Bank of India - 5152</Text>
             </View>
@@ -147,7 +148,7 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, onClose, profile, isD
             {/* Dark Mode Toggle Item */}
             <View style={[s.settingItem, { borderTopColor: border, borderTopWidth: 1 }]}>
               <View style={s.settingIconBox}>
-                {isDarkMode ? <Moon size={20} color={PAYTM_BLUE} /> : <Sun size={20} color="#FF9800" />}
+                {isDarkMode ? <Moon size={20} color={themeBlue} /> : <Sun size={20} color="#FF9800" />}
               </View>
               <View style={s.settingTextCol}>
                 <Text style={[s.settingItemTitle, { color: text }]}>Appearance</Text>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
 import { Search, Bell, Store } from 'lucide-react-native';
-import { PAYTM_BLUE, WHITE, fonts, layout } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, layout } from '../styles/theme';
 
 interface HeaderProps {
     userName: string;
@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ userName, userRole, onProfilePre
     const paytmLogo = { uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1774718135/app-logo_znnatr.png' };
 
     return (
-        <View style={[s.topBarReal, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
+        <View style={[s.topBarReal, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
             <View style={s.topBarLeft}>
                 <TouchableOpacity style={s.userIconReal} onPress={onProfilePress}>
                     {userRole === 'merchant' ? (

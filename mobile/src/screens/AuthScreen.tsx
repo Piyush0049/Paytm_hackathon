@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, ActivityIndicator, StatusBar, Image, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ShieldCheck, HelpCircle, X } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, SUCCESS_GREEN, WHITE, fonts } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, SUCCESS_GREEN, WHITE, fonts } from '../styles/theme';
 
 interface AuthScreenProps {
   authMode: 'login' | 'signup';
@@ -79,13 +79,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       style={[s.roleOption, authRole === 'customer' && s.roleActive]} 
                       onPress={() => setAuthRole('customer')}
                     >
-                      <Text style={[s.roleText, authRole === 'customer' && s.roleTextActive]}>Personal</Text>
+                      <Text style={[s.roleText, authRole === 'customer' && [s.roleTextActive, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]]}>Personal</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       style={[s.roleOption, authRole === 'merchant' && s.roleActive]} 
                       onPress={() => setAuthRole('merchant')}
                     >
-                      <Text style={[s.roleText, authRole === 'merchant' && s.roleTextActive]}>Merchant Business</Text>
+                      <Text style={[s.roleText, authRole === 'merchant' && [s.roleTextActive, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]]}>Merchant Business</Text>
                     </TouchableOpacity>
                   </View>
 
@@ -125,7 +125,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             <View style={s.otpAuthContainer}>
               <Text style={[s.otpAuthTitle, { color: textClr }]}>Enter 4-digit OTP</Text>
               <Text style={[s.otpAuthSub, { color: textMuted }]}>Sent to {authEmail}</Text>
-              <TextInput style={[s.otpAuthInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: isDarkMode ? '#FFF' : PAYTM_BLUE, borderColor: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]} placeholder="0 0 0 0" placeholderTextColor="#555" keyboardType="number-pad" value={authOtp} onChangeText={setAuthOtp} maxLength={4} autoFocus />
+              <TextInput style={[s.otpAuthInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE, borderColor: isDarkMode ? PAYTM_LIGHT_BLUE : '#EEE' }]} placeholder="0 0 0 0" placeholderTextColor="#555" keyboardType="number-pad" value={authOtp} onChangeText={setAuthOtp} maxLength={4} autoFocus />
             </View>
           )}
 
@@ -138,7 +138,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setShowOtpField(false); setAuthOtp(''); }} style={s.switchAuthBtn}>
-            <Text style={[s.switchAuthText, { color: isDarkMode ? '#1A67B8' : PAYTM_BLUE }]}>{authMode === 'login' ? "New to Paytm? Create an account" : "Already have an account? Login"}</Text>
+            <Text style={[s.switchAuthText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>{authMode === 'login' ? "New to Paytm? Create an account" : "Already have an account? Login"}</Text>
           </TouchableOpacity>
         </View>
 
@@ -181,5 +181,5 @@ const s = StyleSheet.create({
   roleOption: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 8 },
   roleActive: { backgroundColor: WHITE, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
   roleText: { fontSize: 13, fontFamily: fonts.medium, color: '#666' },
-  roleTextActive: { color: PAYTM_BLUE, fontFamily: fonts.bold },
+  roleTextActive: { fontFamily: fonts.bold },
 });

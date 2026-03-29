@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { QrCode, Smartphone, Landmark, Send, Zap, Tv, Car, ShieldCheck, ShieldAlert, ScrollText, CreditCard, Ticket, Plane, Banknote, Umbrella, History, Wallet, PiggyBank, Briefcase } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -60,7 +60,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
   return (
     <ScrollView style={[s.screen, bgStyle]} showsVerticalScrollIndicator={false} bounces={false}>
       {/* Background Banner extending from Header */}
-      <View style={[s.blueBanner, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE }]} />
+      <View style={[s.blueBanner, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }]} />
 
       <View style={s.homeContent}>
         {/* UPI MONEY TRANSFER CARD */}
@@ -78,7 +78,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
           </View>
           <View style={[s.upiIdStrip, { backgroundColor: isDarkMode ? '#333333' : '#EBF8FF' }]}>
             <Text style={[s.upiIdText, { color: isDarkMode ? WHITE : PAYTM_BLUE }]}>Your UPI ID: {balance?.upi_id || 'Not Set'}</Text>
-            <TouchableOpacity><Text style={[s.upiIdCopy, { color: isDarkMode ? PAYTM_LIGHT_BLUE : '#002E6E' }]}>Copy</Text></TouchableOpacity>
+            <TouchableOpacity><Text style={[s.upiIdCopy, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>Copy</Text></TouchableOpacity>
           </View>
         </View>
 
@@ -86,7 +86,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
         <View style={[s.sectionBlock, cardStyle, { paddingVertical: 12 }]}>
           <View style={s.actionGrid}>
             <TouchableOpacity style={s.myPaytmItem} onPress={() => setSubScreen('history')}>
-              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#EBF8FF' }]}><History size={24} color={isDarkMode ? '#FFFFFF' : PAYTM_BLUE} /></View>
+              <View style={[s.actionIconLight, { backgroundColor: isDarkMode ? '#2369B0' : '#EBF8FF' }]}><History size={24} color={isDarkMode ? WHITE : PAYTM_BLUE} /></View>
               <Text style={[s.actionLabel, textStyle]}>{'Balance &\nHistory'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.myPaytmItem}>

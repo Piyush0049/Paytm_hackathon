@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions, Activit
 import { Mic, ShieldCheck, CheckCircle2, ChevronLeft, Volume2, AlertTriangle } from 'lucide-react-native';
 import { useAudioRecorder, AudioModule, RecordingPresets, useAudioRecorderState } from 'expo-audio';
 import * as FileSystem from 'expo-file-system/legacy';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, SUCCESS_GREEN, fonts } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, WHITE, SUCCESS_GREEN, fonts } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -33,7 +33,7 @@ export const VoiceEnrollScreen: React.FC<VoiceEnrollScreenProps> = ({ onBack, on
   const surface = isDarkMode ? '#1E1E1E' : WHITE;
   const text = isDarkMode ? '#FFFFFF' : '#111';
   const textMuted = isDarkMode ? '#AAAAAA' : '#666';
-  const accent = isDarkMode ? '#2596be' : PAYTM_LIGHT_BLUE;
+  const accent = isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE;
 
   // Request permissions on mount
   useEffect(() => {
@@ -215,7 +215,7 @@ export const VoiceEnrollScreen: React.FC<VoiceEnrollScreenProps> = ({ onBack, on
       {/* Challenge Phrase */}
       <View style={[s.phraseCard, { backgroundColor: surface, borderColor: isDarkMode ? '#333' : '#E0E0E0' }]}>
         <Text style={[s.phraseLabel, { color: textMuted }]}>Read this phrase aloud:</Text>
-        <Text style={[s.phraseText, { color: accent }]}>
+        <Text style={[s.phraseText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>
           "{challengePhrase}"
         </Text>
       </View>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 import { ShieldCheck, LineChart, Globe, ChevronRight, LogOut, Settings2, HelpCircle, Moon, ArrowLeft, Store } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
 import { QRModal } from '../components/QRModal';
 
 const { width } = Dimensions.get('window');
@@ -57,8 +57,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
         </View>
         <Text style={[s.profileName, { color: text }]}>{profile?.name || 'User'}</Text>
         <Text style={[s.profileEmail, { color: textMuted }]}>{profile?.email || ''}</Text>
-        <View style={s.upiBadge}>
-          <Text style={s.upiBadgeText}>{profile?.upi_id || 'UPI ID Not Set'}</Text>
+        <View style={[s.upiBadge, { backgroundColor: isDarkMode ? '#1A365D' : '#E0F2FE' }]}>
+          <Text style={[s.upiBadgeText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>{profile?.upi_id || 'UPI ID Not Set'}</Text>
         </View>
       </View>
 
@@ -73,7 +73,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
             <Text style={[s.qrCardSub, { color: textMuted }]}>Tap to expand and receive money</Text>
           </View>
           <View style={s.arrowBubble}>
-            <ChevronRight size={18} color={PAYTM_BLUE} />
+            <ChevronRight size={18} color={isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE} />
           </View>
         </View>
       </TouchableOpacity>

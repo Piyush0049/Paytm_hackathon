@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image } from 'react-native';
 import { ArrowLeft, LineChart, TrendingUp, TrendingDown, DollarSign, Store, Activity, AlertTriangle, ChevronRight, BarChart2, Lightbulb, Calendar, Zap } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, SUCCESS_GREEN, ERROR_RED, fonts } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, WHITE, SUCCESS_GREEN, ERROR_RED, fonts } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -20,6 +20,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
   const surface = isDarkMode ? '#1E1E1E' : WHITE;
   const textClr = isDarkMode ? '#FFFFFF' : '#111';
   const textMuted = isDarkMode ? '#AAAAAA' : '#666';
+  const themeBlue = isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE;
 
   useEffect(() => {
     fetchDashboard();
@@ -44,7 +45,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
       <View style={[s.center, { backgroundColor: bg }]}>
         {/* Premium background top for loader screen */}
         <View style={s.topBackground} />
-        <ActivityIndicator size="large" color={PAYTM_BLUE} />
+        <ActivityIndicator size="large" color={themeBlue} />
       </View>
     );
   }
@@ -106,7 +107,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
           <View style={[s.aiBanner, { backgroundColor: surface, shadowColor: isDarkMode ? '#000' : '#E8E8E8' }]}>
             <View style={s.aiBannerHeader}>
               <View style={[s.aiIconBox, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,186,242,0.1)' }]}>
-                <Activity size={18} color={isDarkMode ? WHITE : PAYTM_BLUE} />
+                <Activity size={18} color={isDarkMode ? WHITE : themeBlue} />
               </View>
               <Text style={[s.aiBannerTitle, { color: textClr }]}>Advanced AI Insights</Text>
             </View>
@@ -135,7 +136,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
               ai_insights.forecast_values && (
                 <View style={s.aiForecastContainer}>
                   <View style={s.cardHeaderRow}>
-                    <Activity size={16} color={PAYTM_BLUE} />
+                    <Activity size={16} color={themeBlue} />
                     <Text style={[s.aiDetailLabel, { color: textClr, marginLeft: 8 }]}>AI Predicted Revenue (Next 7 Days)</Text>
                   </View>
                   <View style={[s.forecastGraph, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.03)' : '#F1F5F9' }]}>
@@ -146,7 +147,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
                       return (
                         <View key={idx} style={s.forecastBar}>
                           <Text style={[s.forecastValue, { color: textClr }]}>₹{val > 999 ? `${(val / 1000).toFixed(0)}k` : Math.round(val)}</Text>
-                          <View style={[s.forecastFill, { height: `${hP}%`, backgroundColor: PAYTM_BLUE, opacity: 0.3 + (idx * 0.1) }]} />
+                          <View style={[s.forecastFill, { height: `${hP}%`, backgroundColor: themeBlue, opacity: 0.3 + (idx * 0.1) }]} />
                           <Text style={[s.forecastLabel, { color: textMuted }]}>{label.substring(0, 3)}</Text>
                         </View>
                       )
@@ -159,8 +160,8 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
             {ai_insights.top_recommendation && (
               <View style={[s.aiTipBox, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : '#F8FAFC' }]}>
                 <View style={s.aiHeaderRow}>
-                  <Lightbulb size={16} color={PAYTM_BLUE} />
-                  <Text style={[s.aiTipLabel, { color: PAYTM_BLUE, marginLeft: 8 }]}>Strategy Tip</Text>
+                  <Lightbulb size={16} color={themeBlue} />
+                  <Text style={[s.aiTipLabel, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE, marginLeft: 8 }]}>Strategy Tip</Text>
                 </View>
                 <Text style={[s.aiTipText, { color: textClr }]}>{ai_insights.top_recommendation}</Text>
               </View>
@@ -185,7 +186,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
                     const activity = Math.max(ai_insights.peak_hour_values?.[idx] || 0, 15);
                     return (
                       <View key={idx} style={s.trafficColumn}>
-                        <View style={[s.trafficBar, { height: (activity / 100) * 55, backgroundColor: idx === 2 ? SUCCESS_GREEN : PAYTM_BLUE }]} />
+                        <View style={[s.trafficBar, { height: (activity / 100) * 55, backgroundColor: idx === 2 ? SUCCESS_GREEN : themeBlue }]} />
                         <Text style={[s.trafficLabel, { color: textMuted }]}>{hour}</Text>
                       </View>
                     )

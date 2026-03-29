@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { ChevronLeft, Camera as CameraIcon, Image as ImageIcon, Zap, ShieldCheck } from 'lucide-react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert, ActivityIndicator } from 'react-native';
-import { PAYTM_BLUE, WHITE, SUCCESS_GREEN, fonts } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, SUCCESS_GREEN, fonts } from '../styles/theme';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,6 +21,8 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
   const [scanned, setScanned] = useState(false);
   const [isTorchOn, setIsTorchOn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const themeBlue = isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE;
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -120,7 +122,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
     return (
       <View style={[s.permissionContainer, { backgroundColor: isDarkMode ? '#121212' : '#F5F7FA' }]}>
         <Text style={[s.permissionText, { color: isDarkMode ? '#FFF' : '#333' }]}>We need your permission to show the camera</Text>
-        <TouchableOpacity style={[s.permissionBtn, { backgroundColor: isDarkMode ? '#1A67B8' : PAYTM_BLUE }]} onPress={requestPermission}>
+        <TouchableOpacity style={[s.permissionBtn, { backgroundColor: themeBlue }]} onPress={requestPermission}>
           <Text style={s.permissionBtnText}>Grant Permission</Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.cancelBtn} onPress={onBack}>
@@ -164,7 +166,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
             <View style={[s.corner, s.topRight]} />
             <View style={[s.corner, s.bottomLeft]} />
             <View style={[s.corner, s.bottomRight]} />
-            {!scanned && !isProcessing && <View style={s.scanLine} />}
+            {!scanned && !isProcessing && <View style={[s.scanLine, { backgroundColor: themeBlue }]} />}
             {isProcessing && (
               <View style={s.processingOverlay}>
                 <ActivityIndicator color={WHITE} size="large" />
@@ -212,7 +214,7 @@ const s = StyleSheet.create({
   topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
   bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
   bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
-  scanLine: { width: '80%', height: 2, backgroundColor: PAYTM_BLUE, shadowColor: PAYTM_BLUE, shadowOpacity: 1, shadowRadius: 10, elevation: 0 },
+  scanLine: { width: '80%', height: 2, shadowColor: PAYTM_BLUE, shadowOpacity: 1, shadowRadius: 10, elevation: 0 },
   overlayBottom: { alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)' },
   hintText: { color: '#CCC', fontSize: 14, fontFamily: fonts.medium, textAlign: 'center', marginTop: 30, marginBottom: 30 },
   bottomActions: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', paddingBottom: 30 },
@@ -224,9 +226,9 @@ const s = StyleSheet.create({
   processingOverlay: { alignItems: 'center', justifyContent: 'center' },
   processingText: { color: WHITE, fontSize: 14, fontFamily: fonts.bold, marginTop: 16, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 },
 
-  permissionContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA', padding: 20 },
-  permissionText: { fontSize: 16, fontFamily: fonts.medium, textAlign: 'center', marginBottom: 20, color: '#333' },
-  permissionBtn: { backgroundColor: PAYTM_BLUE, paddingHorizontal: 24, paddingVertical: 14, borderRadius: 12, marginBottom: 16, width: '100%', alignItems: 'center' },
+  permissionContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  permissionText: { fontSize: 16, fontFamily: fonts.medium, textAlign: 'center', marginBottom: 20 },
+  permissionBtn: { paddingHorizontal: 24, paddingVertical: 14, borderRadius: 12, marginBottom: 16, width: '100%', alignItems: 'center' },
   permissionBtnText: { color: WHITE, fontSize: 16, fontFamily: fonts.bold },
   cancelBtn: { paddingVertical: 14, width: '100%', alignItems: 'center' },
   cancelBtnText: { color: '#666', fontSize: 16, fontFamily: fonts.semiBold },

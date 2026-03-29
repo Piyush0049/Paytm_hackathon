@@ -5,7 +5,7 @@ import { useAudioRecorder, AudioModule, RecordingPresets, useAudioRecorderState 
 import * as FileSystem from 'expo-file-system/legacy';
 import ViewShot from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, SUCCESS_GREEN, WHITE, fonts } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, SUCCESS_GREEN, WHITE, fonts } from '../styles/theme';
 
 interface VoicePayModalProps {
   visible: boolean;
@@ -55,9 +55,9 @@ export const VoicePayModal: React.FC<VoicePayModalProps> = ({
 
   const bg = isDarkMode ? '#1E1E1E' : '#FFF';
   const textClr = isDarkMode ? '#FFFFFF' : '#111';
-  const hintClr = isDarkMode ? '#AAAAAA' : '#555';
+  const hintClr = isDarkMode ? '#AAAAAA' : '#666';
   const inputBg = isDarkMode ? '#333' : '#F5F7FA';
-  const accent = isDarkMode ? '#2596be' : PAYTM_LIGHT_BLUE;
+  const accent = isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE;
   const cancelBg = isDarkMode ? '#333333' : '#F0F5FA';
 
   // Request permissions on mount
@@ -303,7 +303,7 @@ export const VoicePayModal: React.FC<VoicePayModalProps> = ({
               <Text style={s.primaryBtnText}>Enroll Voice Now</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[s.cancelBtn, { backgroundColor: cancelBg }]} onPress={onClose}>
-              <Text style={[s.cancelBtnText, { color: isDarkMode ? '#2596be' : PAYTM_BLUE }]}>Cancel</Text>
+              <Text style={[s.cancelBtnText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -366,7 +366,7 @@ export const VoicePayModal: React.FC<VoicePayModalProps> = ({
                 <View style={[s.phraseCard, { backgroundColor: isDarkMode ? '#333' : '#F0F5FA', borderColor: isDarkMode ? '#444' : '#D0D0D0' }]}>
                   <Volume2 size={18} color={accent} style={{ marginBottom: 6 }} />
                   <Text style={[s.phraseLabel, { color: hintClr }]}>Say this clearly:</Text>
-                  <Text style={[s.phraseText, { color: accent }]}>"{challengePhrase}"</Text>
+                  <Text style={[s.phraseText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>"{challengePhrase}"</Text>
                 </View>
 
                 <View style={s.recordArea}>
@@ -412,7 +412,7 @@ export const VoicePayModal: React.FC<VoicePayModalProps> = ({
                   <Text style={s.primaryBtnText}>Try Again</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[s.cancelBtn, { backgroundColor: cancelBg }]} onPress={onClose}>
-                  <Text style={[s.cancelBtnText, { color: isDarkMode ? '#2596be' : PAYTM_BLUE }]}>Cancel</Text>
+                  <Text style={[s.cancelBtnText, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             )}

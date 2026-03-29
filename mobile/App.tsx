@@ -28,7 +28,7 @@ import { PaymentSuccessScreen } from './src/screens/PaymentSuccessScreen';
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-39300.loca.lt'; // tunnel URL for universal global access
+const BACKEND_TUNNEL = 'https://paytm-voice-api-98342.loca.lt'; // tunnel URL for universal global access
 const BACKEND = BACKEND_TUNNEL;
 const PAYTM_SUCCESS_SOUND = 'https://res.cloudinary.com/da2imhgtf/video/upload/v1774766529/New_Project_5_w3uzoe.mp3';
 
@@ -310,9 +310,9 @@ export default function App() {
   if (!bootstrapped && !fontsLoaded) {
     return (
       <SafeAreaProvider>
-        <View style={s.loader}>
-          <ActivityIndicator size="large" color={PAYTM_LIGHT_BLUE} />
-          <Text style={{ marginTop: 20, color: '#888', fontFamily: 'System' }}>Securing your session...</Text>
+        <View style={[s.loader, { backgroundColor: isDarkMode ? '#121212' : WHITE }]}>
+          <ActivityIndicator size="large" color={isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE} />
+          <Text style={{ marginTop: 20, color: isDarkMode ? '#AAA' : '#888', fontFamily: 'System' }}>Securing your session...</Text>
         </View>
       </SafeAreaProvider>
     );
@@ -337,7 +337,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={[s.container, { backgroundColor: isDarkMode ? '#0D0D0D' : BACKGROUND_COLOR }]} edges={['top', 'left', 'right']}>
-        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={isDarkMode ? '#000' : PAYTM_BLUE} />
+        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE} />
         {subScreen !== 'scan' && subScreen !== 'payment_success' && (
           <Header
             userName={profile?.name || 'User'}

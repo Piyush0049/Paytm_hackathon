@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import { ArrowLeft, ShieldCheck, Lock, Eye, EyeOff, X, Mic, ChevronRight, Activity } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED, SUCCESS_GREEN, ERROR_RED } from '../styles/theme';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, PAYTM_DARK_THEME_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED, SUCCESS_GREEN, ERROR_RED } from '../styles/theme';
 
 interface TransferScreenProps {
   onBack: () => void;
@@ -126,7 +126,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
         {/* Sticky Pay Button */}
         <View style={[s.footer, { backgroundColor: bg, borderTopColor: isDarkMode ? '#333' : '#E0E0E0' }]}>
           <TouchableOpacity
-            style={[s.payBtn, { backgroundColor: isDarkMode ? '#2596be' : PAYTM_BLUE }, (!recipient || !amount) && s.payBtnDisabled]}
+            style={[s.payBtn, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }, (!recipient || !amount) && s.payBtnDisabled]}
             onPress={handlePayPress}
             disabled={!recipient || !amount}
           >
@@ -143,7 +143,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
               <X size={22} color={textMuted} />
             </TouchableOpacity>
 
-            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? '#2596be' : '#00BAF2', marginBottom: 12 }]}>
+            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : '#00BAF2', marginBottom: 12 }]}>
               <ShieldCheck size={32} color={WHITE} />
             </View>
 
@@ -168,18 +168,18 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
 
             {/* Password Option */}
             <TouchableOpacity 
-              style={[s.authOptionBtn, { backgroundColor: isDarkMode ? 'rgba(37, 150, 190, 0.1)' : '#F0F9FF', borderColor: PAYTM_BLUE, marginTop: 12 }, isProcessing && { opacity: 0.6 }]} 
+              style={[s.authOptionBtn, { backgroundColor: isDarkMode ? 'rgba(37, 150, 190, 0.1)' : '#F0F9FF', borderColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE, marginTop: 12 }, isProcessing && { opacity: 0.6 }]} 
               onPress={selectPasswordAuth}
               disabled={isProcessing}
             >
-              <View style={[s.authIconCircle, { backgroundColor: PAYTM_BLUE }]}>
+              <View style={[s.authIconCircle, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }]}>
                 <Lock size={20} color={WHITE} />
               </View>
               <View style={s.authTextBody}>
-                <Text style={[s.authOptionTitle, { color: PAYTM_BLUE }]}>Secure PIN / Password</Text>
+                <Text style={[s.authOptionTitle, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]}>Secure PIN / Password</Text>
                 <Text style={[s.authOptionSub, { color: isDarkMode ? '#90CAF9' : '#1E3A8A' }]}>Traditional password authentication</Text>
               </View>
-              <ChevronRight size={18} color={PAYTM_BLUE} />
+              <ChevronRight size={18} color={isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE} />
             </TouchableOpacity>
 
             <View style={[s.modalSecurityRow, { marginTop: 24 }]}>
@@ -200,7 +200,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
             </TouchableOpacity>
 
             {/* Lock Icon */}
-            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? '#2596be' : PAYTM_BLUE }]}>
+            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }]}>
               <Lock size={32} color={WHITE} />
             </View>
 
@@ -227,7 +227,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
 
             {/* Confirm Button */}
             <TouchableOpacity
-              style={[s.confirmBtn, { backgroundColor: isDarkMode ? '#2596be' : PAYTM_BLUE }, !password && { backgroundColor: '#A0AEC0' }]}
+              style={[s.confirmBtn, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE }, !password && { backgroundColor: '#A0AEC0' }]}
               onPress={handleConfirmPayment}
               disabled={!password || isProcessing}
             >
