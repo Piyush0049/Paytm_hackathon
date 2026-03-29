@@ -7,6 +7,7 @@ from pydantic import BaseModel
 import base64
 from database import cols
 from auth_utils import get_current_user
+from time_utils import get_ist_now
 from services.voice_auth_service import VoiceAuthService
 from datetime import datetime
 import uuid
@@ -26,7 +27,7 @@ async def get_challenge_phrase(user=Depends(get_current_user)):
     # Store the active challenge in DB so we can verify later
     await cols.voice_enrollments.update_one(
         {"user_id": user["user_id"]},
-        {"$set": {"active_challenge": phrase, "challenge_created_at": datetime.utcnow()}},
+        {"$set": {"active_challenge": phrase, "challenge_created_at": get_ist_now()}},
         upsert=True
     )
 
@@ -51,7 +52,7 @@ async def start_enrollment(user=Depends(get_current_user)):
             "samples_collected": 0,
             "samples_required": 3,
             "embeddings": [],
-            "started_at": datetime.utcnow()
+            "started_at": get_ist_now()
         }},
         upsert=True
     )
@@ -124,7 +125,7 @@ async def enroll_sample(
                 "samples_collected": collected,
                 "embeddings": embeddings,
                 "final_embedding": avg_embedding,
-                "enrolled_at": datetime.utcnow()
+                "enrolled_at": get_ist_now()
             }}
         )
         await cols.users.update_one(
@@ -138,7 +139,7 @@ async def enroll_sample(
             "title": "🔒 Voice Enrolled",
             "body": "Your voiceprint is now securing your payments with triple-layer AI protection",
             "time": "Just now", "read": False, "type": "security",
-            "created_at": datetime.utcnow()
+            "created_at": get_ist_now()
         })
 
         return {
@@ -316,7 +317,7 @@ async def voice_payment(
         "id": tx_id, "type": "sent", "amount": amount,
         "recipient": recipient_user.get("name", recipient_upi),
         "memo": "VoiceGuard Payment",
-        "category": "Transfer", "timestamp": datetime.utcnow(),
+        "category": "Transfer", "timestamp": get_ist_now(),
         "status": "completed", "user_id": uid,
         "verification_method": "voiceguard_biometric",
         "biometric_score": verify_result["similarity"],
@@ -327,7 +328,7 @@ async def voice_payment(
         "id": tx_id + "R", "type": "received", "amount": amount,
         "recipient": user.get("name", "Unknown"),
         "memo": "VoiceGuard Payment Received",
-        "category": "Transfer", "timestamp": datetime.utcnow(),
+        "category": "Transfer", "timestamp": get_ist_now(),
         "status": "completed", "user_id": recipient_user["user_id"],
         "verification_method": "voiceguard_biometric",
         "biometric_score": verify_result["similarity"],
@@ -340,7 +341,7 @@ async def voice_payment(
         "title": f"Sent ₹{amount}",
         "body": f"Voice-verified payment to {recipient_user.get('name')} via VoiceGuard",
         "time": "Just now", "read": False, "type": "payment",
-        "created_at": datetime.utcnow()
+        "created_at": get_ist_now()
     })
 
     print(f"💸 VOICE PAYMENT: {user.get('name')} → {recipient_user.get('name')} | ₹{amount} | Score: {verify_result['similarity']}")

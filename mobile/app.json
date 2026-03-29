@@ -44,7 +44,13 @@
       }
     },
     "packagerOpts": {
-      "assetExts": ["ttf", "png", "jpg", "jpeg", "svg"]
+      "assetExts": [
+        "ttf",
+        "png",
+        "jpg",
+        "jpeg",
+        "svg"
+      ]
     }
   }
 }

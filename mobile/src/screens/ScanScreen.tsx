@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, useColorScheme } from 'react-native';
 import { ChevronLeft, Camera as CameraIcon, Image as ImageIcon, Zap, ShieldCheck } from 'lucide-react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
+import { Alert, ActivityIndicator } from 'react-native';
 import { PAYTM_BLUE, WHITE, SUCCESS_GREEN, fonts } from '../styles/theme';
 
 const { width, height } = Dimensions.get('window');
@@ -16,6 +18,8 @@ interface ScanScreenProps {
 export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, backendUrl }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
+  const [isTorchOn, setIsTorchOn] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
@@ -54,7 +58,57 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
       try { val = JSON.parse(rawTxt); } catch { throw new Error('Invalid server response'); }
       onScan({ id: upiId, name: val.name });
     } catch (err: any) {
-      import('react-native').then(rn => rn.Alert.alert('Scan Failed', 'This QR code is invalid or the user does not exist.', [{ text: 'Try Again', onPress: () => setScanned(false) }]));
+      Alert.alert('Scan Failed', 'This QR code is invalid or the user does not exist.', [{ text: 'Try Again', onPress: () => setScanned(false) }]);
+    }
+  };
+
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'We need gallery permission to scan QR from images.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      setIsProcessing(true);
+      try {
+        // Upload to backend for robust server-side decoding
+        const formData = new FormData();
+        // @ts-ignore
+        formData.append('file', {
+          uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+          name: 'scan.jpg',
+          type: 'image/jpeg',
+        });
+
+        const response = await fetch(`${backendUrl}/qr/decode`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Bypass-Tunnel-Reminder': 'true'
+          },
+        });
+
+        const resData = await response.json();
+        if (response.ok && resData.data) {
+          handleBarcodeScanned({ type: 'qr', data: resData.data });
+        } else {
+          Alert.alert('No QR Found', 'Could not detect any QR code in the selected image.');
+        }
+      } catch (e) {
+        console.error('QR Upload Error:', e);
+        Alert.alert('Error', 'Failed to securely process the image. Please check your connection.');
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -81,9 +135,10 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
       <CameraView
         style={StyleSheet.absoluteFillObject}
         facing="back"
-        onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+        enableTorch={isTorchOn}
+        onBarcodeScanned={scanned || isProcessing ? undefined : handleBarcodeScanned}
         barcodeScannerSettings={{
-          barcodeTypes: ["qr"],
+          barcodeTypes: ["qr", "pdf417", "aztec", "datamatrix", "code128"],
         }}
       />
 
@@ -94,8 +149,11 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
             <ChevronLeft color={WHITE} size={30} />
           </TouchableOpacity>
           <Text style={s.headerTitle}>Scan Any QR Code</Text>
-          <TouchableOpacity style={s.flashBtn}>
-            <Zap color={WHITE} size={24} />
+          <TouchableOpacity 
+            style={[s.flashBtn, isTorchOn && { backgroundColor: 'rgba(255, 235, 59, 0.4)', borderRadius: 20 }]} 
+            onPress={() => setIsTorchOn(!isTorchOn)}
+          >
+            <Zap color={isTorchOn ? '#FFEB3B' : WHITE} size={24} />
           </TouchableOpacity>
         </View>
 
@@ -106,18 +164,24 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, b
             <View style={[s.corner, s.topRight]} />
             <View style={[s.corner, s.bottomLeft]} />
             <View style={[s.corner, s.bottomRight]} />
-            {!scanned && <View style={s.scanLine} />}
+            {!scanned && !isProcessing && <View style={s.scanLine} />}
+            {isProcessing && (
+              <View style={s.processingOverlay}>
+                <ActivityIndicator color={WHITE} size="large" />
+                <Text style={s.processingText}>Analyzing QR Code...</Text>
+              </View>
+            )}
           </View>
         </View>
 
         <View style={s.overlayBottom}>
           <Text style={s.hintText}>Align QR code within the frame to scan</Text>
           <View style={s.bottomActions}>
-            <TouchableOpacity style={s.actionIcon}>
+            <TouchableOpacity style={s.actionIcon} onPress={handlePickImage} disabled={isProcessing}>
               <ImageIcon color={WHITE} size={28} />
               <Text style={s.actionLabel}>Gallery</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={s.actionIcon}>
+            <TouchableOpacity style={s.actionIcon} onPress={() => Alert.alert('Camera', 'You are already using the camera scanner.')}>
               <CameraIcon color={WHITE} size={28} />
               <Text style={s.actionLabel}>Camera</Text>
             </TouchableOpacity>
@@ -156,6 +220,9 @@ const s = StyleSheet.create({
   actionLabel: { color: WHITE, fontSize: 12, fontFamily: fonts.medium, marginTop: 8 },
   footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: WHITE, width: '100%' },
   footerText: { color: '#444', fontSize: 12, fontFamily: fonts.medium, marginLeft: 8 },
+
+  processingOverlay: { alignItems: 'center', justifyContent: 'center' },
+  processingText: { color: WHITE, fontSize: 14, fontFamily: fonts.bold, marginTop: 16, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 },
 
   permissionContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F7FA', padding: 20 },
   permissionText: { fontSize: 16, fontFamily: fonts.medium, textAlign: 'center', marginBottom: 20, color: '#333' },

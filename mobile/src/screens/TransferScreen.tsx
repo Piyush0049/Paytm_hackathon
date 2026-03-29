@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Modal } from 'react-native';
-import { ArrowLeft, ShieldCheck, Lock, Eye, EyeOff, X } from 'lucide-react-native';
-import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Modal, ActivityIndicator } from 'react-native';
+import { ArrowLeft, ShieldCheck, Lock, Eye, EyeOff, X, Mic, ChevronRight, Activity } from 'lucide-react-native';
+import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED, SUCCESS_GREEN, ERROR_RED } from '../styles/theme';
 
 interface TransferScreenProps {
   onBack: () => void;
   onTransfer: (amount: number, recipient: string, password: string) => void;
+  onVoicePay: (amount: number, recipient: string) => void;
   initialRecipient?: { id: string; name: string };
   isDarkMode?: boolean;
 }
 
-export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransfer, initialRecipient, isDarkMode = false }) => {
+export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransfer, onVoicePay, initialRecipient, isDarkMode = false }) => {
   const [recipient, setRecipient] = useState(initialRecipient?.id || '');
   const [recipientName] = useState(initialRecipient?.name || 'Unknown Recipient');
   const [amount, setAmount] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showAuthSelector, setShowAuthSelector] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const bg = isDarkMode ? DARK_BACKGROUND : '#F5F7FA';
   const surface = isDarkMode ? DARK_SURFACE : WHITE;
@@ -25,14 +28,36 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
 
   const handlePayPress = () => {
     if (!recipient || !amount) return;
+    setShowAuthSelector(true);
+  };
+
+  const selectPasswordAuth = () => {
+    setShowAuthSelector(false);
     setPassword('');
     setShowPasswordModal(true);
   };
 
-  const handleConfirmPayment = () => {
+  const selectVoiceAuth = async () => {
+    setShowAuthSelector(false);
+    setIsProcessing(true);
+    try {
+      await onVoicePay(parseFloat(amount), recipient);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleConfirmPayment = async () => {
     if (!password) return;
-    setShowPasswordModal(false);
-    onTransfer(parseFloat(amount), recipient, password);
+    setIsProcessing(true);
+    try {
+      // Small simulation delay to ensure the loader is seen if the network is too fast
+      await new Promise(r => setTimeout(r, 600));
+      await onTransfer(parseFloat(amount), recipient, password);
+      setShowPasswordModal(false);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -110,6 +135,61 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
         </View>
       </KeyboardAvoidingView>
 
+      {/* ─── Authentication Method Selector Modal ─── */}
+      <Modal visible={showAuthSelector} transparent animationType="fade">
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContainer, { backgroundColor: isDarkMode ? '#1E1E1E' : WHITE }]}>
+            <TouchableOpacity style={s.modalClose} onPress={() => setShowAuthSelector(false)}>
+              <X size={22} color={textMuted} />
+            </TouchableOpacity>
+
+            <View style={[s.modalLockCircle, { backgroundColor: isDarkMode ? '#2596be' : '#00BAF2', marginBottom: 12 }]}>
+              <ShieldCheck size={32} color={WHITE} />
+            </View>
+
+            <Text style={[s.modalTitle, { color: text, marginBottom: 4 }]}>Secure Payment</Text>
+            <Text style={[s.modalSubtitle, { color: textMuted, marginBottom: 28 }]}>Choose how you'd like to verify this payment of ₹{amount}</Text>
+
+            {/* Voice Option */}
+            <TouchableOpacity 
+              style={[s.authOptionBtn, { backgroundColor: isDarkMode ? 'rgba(33, 193, 124, 0.1)' : '#F0FDF4', borderColor: SUCCESS_GREEN }, isProcessing && { opacity: 0.6 }]} 
+              onPress={selectVoiceAuth}
+              disabled={isProcessing}
+            >
+              <View style={[s.authIconCircle, { backgroundColor: SUCCESS_GREEN }]}>
+                {isProcessing ? <ActivityIndicator size="small" color={WHITE} /> : <Activity size={20} color={WHITE} />}
+              </View>
+              <View style={s.authTextBody}>
+                <Text style={[s.authOptionTitle, { color: SUCCESS_GREEN }]}>{isProcessing ? 'Initializing VoiceGuard...' : 'VoiceGuard AI'}</Text>
+                <Text style={[s.authOptionSub, { color: isDarkMode ? '#A5D6A7' : '#14532D' }]}>Verification via your unique voiceprint</Text>
+              </View>
+              {!isProcessing && <ChevronRight size={18} color={SUCCESS_GREEN} />}
+            </TouchableOpacity>
+
+            {/* Password Option */}
+            <TouchableOpacity 
+              style={[s.authOptionBtn, { backgroundColor: isDarkMode ? 'rgba(37, 150, 190, 0.1)' : '#F0F9FF', borderColor: PAYTM_BLUE, marginTop: 12 }, isProcessing && { opacity: 0.6 }]} 
+              onPress={selectPasswordAuth}
+              disabled={isProcessing}
+            >
+              <View style={[s.authIconCircle, { backgroundColor: PAYTM_BLUE }]}>
+                <Lock size={20} color={WHITE} />
+              </View>
+              <View style={s.authTextBody}>
+                <Text style={[s.authOptionTitle, { color: PAYTM_BLUE }]}>Secure PIN / Password</Text>
+                <Text style={[s.authOptionSub, { color: isDarkMode ? '#90CAF9' : '#1E3A8A' }]}>Traditional password authentication</Text>
+              </View>
+              <ChevronRight size={18} color={PAYTM_BLUE} />
+            </TouchableOpacity>
+
+            <View style={[s.modalSecurityRow, { marginTop: 24 }]}>
+              <ShieldCheck size={12} color="#21C17C" />
+              <Text style={[s.modalSecurityText, { color: textMuted }]}>Security verified by Paytm VoiceGuard AI</Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* ─── Password Verification Modal ─── */}
       <Modal visible={showPasswordModal} transparent animationType="slide">
         <View style={s.modalOverlay}>
@@ -124,7 +204,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
               <Lock size={32} color={WHITE} />
             </View>
 
-            <Text style={[s.modalTitle, { color: text }]}>Confirm Payment</Text>
+            <Text style={[s.modalTitle, { color: text }]}>Enter Password</Text>
             <Text style={[s.modalSubtitle, { color: textMuted }]}>
               Enter your password to send ₹{amount} to {initialRecipient?.name || recipient}
             </Text>
@@ -133,7 +213,7 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
             <View style={[s.passwordRow, { borderColor: isDarkMode ? '#444' : '#DDD' }]}>
               <TextInput
                 style={[s.passwordInput, { color: text }]}
-                placeholder="Enter your password"
+                placeholder="Password"
                 placeholderTextColor={isDarkMode ? '#666' : '#AAA'}
                 secureTextEntry={!showPassword}
                 value={password}
@@ -149,10 +229,16 @@ export const TransferScreen: React.FC<TransferScreenProps> = ({ onBack, onTransf
             <TouchableOpacity
               style={[s.confirmBtn, { backgroundColor: isDarkMode ? '#2596be' : PAYTM_BLUE }, !password && { backgroundColor: '#A0AEC0' }]}
               onPress={handleConfirmPayment}
-              disabled={!password}
+              disabled={!password || isProcessing}
             >
-              <ShieldCheck size={20} color={WHITE} style={{ marginRight: 8 }} />
-              <Text style={s.confirmBtnText}>Confirm & Pay ₹{amount}</Text>
+              {isProcessing ? (
+                <ActivityIndicator size="small" color={WHITE} />
+              ) : (
+                <>
+                  <ShieldCheck size={20} color={WHITE} style={{ marginRight: 8 }} />
+                  <Text style={s.confirmBtnText}>Confirm Payment</Text>
+                </>
+              )}
             </TouchableOpacity>
 
             <View style={s.modalSecurityRow}>
@@ -210,4 +296,11 @@ const s = StyleSheet.create({
   confirmBtnText: { color: WHITE, fontSize: 16, fontFamily: fonts.bold },
   modalSecurityRow: { flexDirection: 'row', alignItems: 'center', marginTop: 16 },
   modalSecurityText: { fontSize: 11, fontFamily: fonts.medium, marginLeft: 6 },
+
+  // Auth Selector
+  authOptionBtn: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16, borderWidth: 1, width: '100%' },
+  authIconCircle: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  authTextBody: { flex: 1 },
+  authOptionTitle: { fontSize: 15, fontFamily: fonts.bold, marginBottom: 2 },
+  authOptionSub: { fontSize: 11, fontFamily: fonts.medium, opacity: 0.8 },
 });

@@ -18,7 +18,7 @@ interface AuthScreenProps {
   showOtpField: boolean;
   setShowOtpField: (show: boolean) => void;
   authLoading: boolean;
-  handleAuth: () => void;
+  handleAuth: (extraData?: any) => void;
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({
@@ -26,6 +26,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   authPassword, setAuthPassword, authOtp, setAuthOtp, showOtpField, setShowOtpField,
   authLoading, handleAuth
 }) => {
+  const [authRole, setAuthRole] = React.useState<'customer' | 'merchant'>('customer');
+  const [businessName, setBusinessName] = React.useState('');
+  const [businessCategory, setBusinessCategory] = React.useState('');
+  const [businessAddress, setBusinessAddress] = React.useState('');
+
   const paytmLogo = { uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1774718149/paytm_logo_zjwmb5.png' };
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -33,6 +38,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   const bg = isDarkMode ? '#121212' : WHITE;
   const textClr = isDarkMode ? '#FFFFFF' : '#111';
   const textMuted = isDarkMode ? '#AAAAAA' : '#666';
+
+  const onAuthPress = () => {
+    // We intercept the original handleAuth to inject the extra role fields
+    handleAuth({ 
+      authRole, 
+      businessName: authRole === 'merchant' ? businessName : undefined,
+      businessCategory: authRole === 'merchant' ? businessCategory : undefined,
+      businessAddress: authRole === 'merchant' ? businessAddress : undefined
+    });
+  };
 
   return (
     <SafeAreaView style={[s.authSafe, { backgroundColor: bg }]} edges={['top', 'left', 'right']}>
@@ -57,10 +72,45 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           {!showOtpField ? (
             <>
               {authMode === 'signup' && (
-                <View style={s.inputContainer}>
-                  <Text style={[s.inputLabel, { color: textMuted }]}>Full Name</Text>
-                  <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="Enter your name" placeholderTextColor="#AAA" value={authName} onChangeText={setAuthName} />
-                </View>
+                <>
+                  {/* Role Selector */}
+                  <View style={s.roleSelector}>
+                    <TouchableOpacity 
+                      style={[s.roleOption, authRole === 'customer' && s.roleActive]} 
+                      onPress={() => setAuthRole('customer')}
+                    >
+                      <Text style={[s.roleText, authRole === 'customer' && s.roleTextActive]}>Personal</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[s.roleOption, authRole === 'merchant' && s.roleActive]} 
+                      onPress={() => setAuthRole('merchant')}
+                    >
+                      <Text style={[s.roleText, authRole === 'merchant' && s.roleTextActive]}>Merchant Business</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={s.inputContainer}>
+                    <Text style={[s.inputLabel, { color: textMuted }]}>Full Name</Text>
+                    <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="Enter your name" placeholderTextColor="#AAA" value={authName} onChangeText={setAuthName} />
+                  </View>
+
+                  {authRole === 'merchant' && (
+                    <>
+                      <View style={s.inputContainer}>
+                        <Text style={[s.inputLabel, { color: textMuted }]}>Business Name</Text>
+                        <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="e.g. Sharma General Store" placeholderTextColor="#AAA" value={businessName} onChangeText={setBusinessName} />
+                      </View>
+                      <View style={s.inputContainer}>
+                        <Text style={[s.inputLabel, { color: textMuted }]}>Business Category</Text>
+                        <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="e.g. Retail, Food, Services" placeholderTextColor="#AAA" value={businessCategory} onChangeText={setBusinessCategory} />
+                      </View>
+                      <View style={s.inputContainer}>
+                        <Text style={[s.inputLabel, { color: textMuted }]}>Business Address</Text>
+                        <TextInput style={[s.premiumInput, { backgroundColor: isDarkMode ? '#1E1E1E' : '#F9FAFC', color: textClr, borderColor: isDarkMode ? '#333' : '#EEE' }]} placeholder="e.g. Sector 9/11, City" placeholderTextColor="#AAA" value={businessAddress} onChangeText={setBusinessAddress} />
+                      </View>
+                    </>
+                  )}
+                </>
               )}
               <View style={s.inputContainer}>
                 <Text style={[s.inputLabel, { color: textMuted }]}>Email Address</Text>
@@ -79,7 +129,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             </View>
           )}
 
-          <TouchableOpacity style={[s.actionBtnAuth, { backgroundColor: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]} onPress={handleAuth} activeOpacity={0.8}>
+          <TouchableOpacity style={[s.actionBtnAuth, { backgroundColor: isDarkMode ? '#1A67B8' : PAYTM_LIGHT_BLUE }]} onPress={onAuthPress} activeOpacity={0.8}>
             {authLoading ? <ActivityIndicator color={WHITE} /> : (
               <Text style={s.actionBtnTextAuth}>
                 {!showOtpField ? 'Proceed Securely' : (authMode === 'login' ? 'Verify & Login' : 'Verify & Claim ₹1,000')}
@@ -126,4 +176,10 @@ const s = StyleSheet.create({
   authTrustBlock: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0F9F4', padding: 16, borderRadius: 16 },
   trustTitle: { fontSize: 14, fontFamily: fonts.bold, color: '#1A531B' },
   trustSub: { fontSize: 11, fontFamily: fonts.regular, color: '#1A531B', opacity: 0.7 },
+
+  roleSelector: { flexDirection: 'row', backgroundColor: '#F0F5FA', borderRadius: 12, padding: 4, marginBottom: 20 },
+  roleOption: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 8 },
+  roleActive: { backgroundColor: WHITE, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  roleText: { fontSize: 13, fontFamily: fonts.medium, color: '#666' },
+  roleTextActive: { color: PAYTM_BLUE, fontFamily: fonts.bold },
 });

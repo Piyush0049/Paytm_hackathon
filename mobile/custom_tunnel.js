@@ -22,7 +22,7 @@ async function killPortSafer(port) {
                     const pid = parts[parts.length - 1];
                     try {
                         execSync(`taskkill /F /PID ${pid} /T`, { stdio: 'ignore' });
-                    } catch(e){}
+                    } catch (e) { }
                 }
             }
             resolve();
@@ -38,7 +38,7 @@ async function killPortSafer(port) {
     console.log(`🧹 Cleaning up ghost processes...`);
     await killPortSafer(MOBILE_PORT);
     await killPortSafer(BACKEND_PORT);
-    try { execSync('taskkill /F /IM ngrok.exe /T', { stdio: 'ignore' }); } catch(e){}
+    try { execSync('taskkill /F /IM ngrok.exe /T', { stdio: 'ignore' }); } catch (e) { }
 
     console.log(`📡 Provisioning Dual-Localtunnels (Global Access Enabled)...`);
 
@@ -49,10 +49,10 @@ async function killPortSafer(port) {
     let beUrl = '';
     beLt.stdout.on('data', (d) => {
         const m = d.toString().match(/https:\/\/[^\s]+/);
-        if (m) { 
-            beUrl = m[0]; 
-            console.log(`✅ Backend API ready at: ${beUrl}`); 
-            syncAppAndStartExpo(); 
+        if (m) {
+            beUrl = m[0];
+            console.log(`✅ Backend API ready at: ${beUrl}`);
+            syncAppAndStartExpo();
         }
     });
 
@@ -67,7 +67,7 @@ async function killPortSafer(port) {
         fs.writeFileSync(APP_PATH, content);
 
         console.log(`📲 Provisioning Mobile Bundle Tunnel (Bypassing Ngrok Bug)...`);
-        
+
         // Manual Tunnel for Metro Bundler
         const moLt = spawn('npx', ['localtunnel', '--port', MOBILE_PORT.toString(), '--subdomain', MO_SUBDOMAIN], { shell: true });
 
@@ -77,15 +77,15 @@ async function killPortSafer(port) {
                 const moUrl = m[0];
                 // LocalTunnel URLs use exp:// protocol for Expo Go
                 const expoUrl = moUrl.replace('https://', 'exp://');
-                
+
                 console.log(`✅ Mobile Bundle ready at: ${moUrl}`);
                 console.log(`\n📱 SCAN THIS QR CODE IN EXPO GO:\n`);
                 qrcode.generate(expoUrl, { small: true });
                 console.log(`\nURL: ${expoUrl}\n`);
-                
+
                 console.log(`🏗️ Starting Metro Bundler (Clearing Cache)...`);
-                spawn('npx', ['expo', 'start', '--offline', '--clear'], { 
-                    stdio: 'inherit', 
+                spawn('npx', ['expo', 'start', '--offline', '--clear'], {
+                    stdio: 'inherit',
                     shell: true,
                     env: {
                         ...process.env,
@@ -96,7 +96,7 @@ async function killPortSafer(port) {
             }
         });
     }
-    
+
     // Safety timeout
     setTimeout(() => {
         if (!alreadyStarted) {

@@ -1,10 +1,12 @@
 """
 Paytm AI VoiceGuard - Auth Routes
-Handles OTP delivery, signup with ₹1000 bonus, and login
+Handles OTP delivery, signup with ₹1000 bonus, login
+Supports role selection: "customer" (default) or "merchant"
 """
 from fastapi import APIRouter, HTTPException, Request
 from database import cols
 from auth_utils import get_password_hash, verify_password, create_access_token
+from time_utils import get_ist_now
 from services.email_service import send_email_otp
 from datetime import datetime
 import random, uuid, time
@@ -30,7 +32,7 @@ async def send_otp(request: Request):
     otp_code = str(random.randint(1000, 9999))
     await cols.otps.update_one(
         {"email": identifier},
-        {"$set": {"otp": otp_code, "email": identifier, "created_at": datetime.utcnow()}},
+        {"$set": {"otp": otp_code, "email": identifier, "created_at": get_ist_now()}},
         upsert=True
     )
 
@@ -52,6 +54,7 @@ async def signup(request: Request):
     name = body.get("name", "User")
     password = body.get("password", "")
     otp = body.get("otp", "")
+    role = body.get("role", "customer")  # "customer" or "merchant"
 
     if not identifier or not password or not otp:
         print(f"⚠️ SIGNUP FAIL: Missing fields. ID={identifier}, PWD={'YES' if password else 'NO'}, OTP={otp}")
@@ -71,16 +74,15 @@ async def signup(request: Request):
     upi_id = f"{upi_prefix}@paytm"
     exists = await cols.users.find_one({"upi_id": upi_id})
     if exists:
-        # Append a short random number to make it unique but short
         upi_id = f"{upi_prefix}{random.randint(10, 99)}@paytm"
-        # One more check just in case, though very unlikely to collide now
         while await cols.users.find_one({"upi_id": upi_id}):
             upi_id = f"{upi_prefix}{random.randint(100, 999)}@paytm"
 
     qr_data = f"upi://pay?pa={upi_id}&pn={name}&cu=INR"
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={qr_data}"
 
-    await cols.users.insert_one({
+    # Base user document
+    user_doc = {
         "user_id": user_id,
         "name": name,
         "email": identifier,
@@ -95,16 +97,49 @@ async def signup(request: Request):
         "kyc_status": "pending",
         "member_since": str(datetime.now().year),
         "preferred_language": "en",
-        "created_at": datetime.utcnow()
-    })
+        "role": role,  # "customer" or "merchant"
+        "created_at": get_ist_now()
+    }
+
+    await cols.users.insert_one(user_doc)
+
+    # If merchant, also create a merchant profile
+    merchant_id = None
+    if role == "merchant":
+        merchant_id = f"merch_{uuid.uuid4().hex[:8]}"
+        business_name = body.get("business_name", name + "'s Store")
+        business_category = body.get("business_category", "General")
+        business_address = body.get("business_address", "Not provided")
+
+        await cols.merchants.insert_one({
+            "merchant_id": merchant_id,
+            "user_id": user_id,
+            "name": business_name,
+            "owner_name": name,
+            "email": identifier,
+            "upi_id": upi_id,
+            "category": business_category,
+            "address": business_address,
+            "total_revenue": 0,
+            "total_transactions": 0,
+            "soundbox_active": True,
+            "fraud_alerts": 0,
+            "ai_insights_enabled": True,
+            "created_at": get_ist_now()
+        })
+        print(f"🏪 Merchant profile created: {business_name} ({merchant_id})")
 
     # Welcome notification
+    welcome_msg = "₹1,000 signup bonus credited to your wallet."
+    if role == "merchant":
+        welcome_msg = f"₹1,000 signup bonus credited. Your merchant dashboard is ready!"
+
     await cols.notifications.insert_one({
         "user_id": user_id,
         "title": "Welcome to Paytm!",
-        "body": "₹1,000 signup bonus credited to your wallet.",
+        "body": welcome_msg,
         "time": "Just now", "read": False, "type": "welcome",
-        "created_at": datetime.utcnow()
+        "created_at": get_ist_now()
     })
 
     # Bonus transaction record
@@ -112,14 +147,26 @@ async def signup(request: Request):
         "id": f"UPI{int(time.time()*1000)}",
         "type": "received", "amount": 1000.0,
         "recipient": "Paytm Cashback", "memo": "Signup Bonus",
-        "category": "Cashback", "timestamp": datetime.utcnow(),
+        "category": "Cashback", "timestamp": get_ist_now(),
         "status": "completed", "user_id": user_id,
         "verification_method": "system", "biometric_score": 1.0, "risk_level": "low"
     })
 
     await cols.otps.delete_one({"email": identifier})
     token = create_access_token({"sub": user_id})
-    return {"status": "success", "token": token, "user_id": user_id, "name": name, "message": "Signup successful with ₹1000 bonus!"}
+    
+    result = {
+        "status": "success",
+        "token": token,
+        "user_id": user_id,
+        "name": name,
+        "role": role,
+        "message": "Signup successful with ₹1000 bonus!"
+    }
+    if merchant_id:
+        result["merchant_id"] = merchant_id
+
+    return result
 
 # ─────────────────────── LOGIN ───────────────────────
 @router.post("/login")
@@ -148,7 +195,6 @@ async def login(request: Request):
 
     otp_rec = await cols.otps.find_one({"email": identifier})
     if not otp_rec:
-        # Check if accidentally stored differently
         all_otps = await cols.otps.find({}).to_list(10)
         print(f"⚠️ LOGIN FAIL: No OTP for '{identifier}'. Available OTPs for: {[o.get('email') for o in all_otps]}")
         raise HTTPException(400, "No OTP record found for this email. Please request a new one.")
@@ -160,7 +206,22 @@ async def login(request: Request):
 
     await cols.otps.delete_one({"email": identifier})
     token = create_access_token({"sub": user["user_id"]})
-    return {"status": "success", "token": token, "user_id": user["user_id"], "name": user["name"]}
+
+    result = {
+        "status": "success",
+        "token": token,
+        "user_id": user["user_id"],
+        "name": user["name"],
+        "role": user.get("role", "customer")
+    }
+
+    # If merchant, include merchant_id
+    if user.get("role") == "merchant":
+        merchant = await cols.merchants.find_one({"user_id": user["user_id"]})
+        if merchant:
+            result["merchant_id"] = merchant["merchant_id"]
+
+    return result
 
 # ─────────────────────── VERIFY PASSWORD ───────────────────────
 from fastapi import Depends
@@ -182,4 +243,3 @@ async def verify_password_endpoint(request: Request, user=Depends(get_current_us
         "name": user.get("name"),
         "upi_id": user.get("upi_id"),
     }
-

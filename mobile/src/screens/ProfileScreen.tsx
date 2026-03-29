@@ -13,19 +13,18 @@ interface ProfileScreenProps {
   isDarkMode?: boolean;
   setIsDarkMode?: (val: boolean) => void;
   onBack?: () => void;
+  onMerchantDashboard?: () => void;
 }
 
-export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, onEnroll, isDarkMode = false, setIsDarkMode, onBack }) => {
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, onEnroll, isDarkMode = false, setIsDarkMode, onBack, onMerchantDashboard }) => {
   const [showQR, setShowQR] = useState(false);
 
   const menuItems = [
-    { icon: ShieldCheck, color: '#FF9800', label: 'Security & VoiceGuard' },
-    { icon: LineChart, color: '#21C17C', label: 'Credit Score & Reports' },
-    { icon: Settings2, color: PAYTM_LIGHT_BLUE, label: 'Payment Settings' },
-    { icon: Globe, color: '#9C27B0', label: 'Language' },
-    { icon: HelpCircle, color: '#607D8B', label: '24x7 Help & Support' },
-    { icon: Moon, color: '#4A90E2', label: 'Change Appearance' },
-  ];
+    { id: 'security', icon: ShieldCheck, color: '#FF9800', label: 'Security & VoiceGuard' },
+    { id: 'merchant', icon: LineChart, color: '#00BAF2', label: 'Merchant Dashboard', show: profile?.role === 'merchant' },
+    { id: 'settings', icon: Settings2, color: PAYTM_LIGHT_BLUE, label: 'Payment Settings' },
+    { id: 'theme', icon: Moon, color: '#4A90E2', label: 'Change Appearance' },
+  ].filter(item => item.show !== false);
 
   const qrUrl = profile?.qr_url || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${profile?.upi_id || ''}`;
   const bg = isDarkMode ? DARK_BACKGROUND : '#F5F7FA';
@@ -53,7 +52,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
           </View>
         </View>
         <Text style={[s.profileName, { color: text }]}>{profile?.name || 'User'}</Text>
-        <Text style={[s.profileEmail, { color: textMuted }]}>{profile?.email || ''}</Text>
+        <Text style={[s.profileEmail, { color: textMuted }]}>{profile?.email || ''} {profile?.role === 'merchant' && '🏪'}</Text>
         <View style={s.upiBadge}>
           <Text style={s.upiBadgeText}>{profile?.upi_id || 'UPI ID Not Set'}</Text>
         </View>
@@ -83,6 +82,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
             style={[s.profileListItem, { borderBottomColor: isDarkMode ? '#333' : '#F5F5F5', borderBottomWidth: i === menuItems.length - 1 ? 0 : 1 }]} 
             onPress={() => {
               if (item.label.includes('VoiceGuard')) onEnroll();
+              if (item.label === 'Merchant Dashboard' && onMerchantDashboard) onMerchantDashboard();
               if (item.label === 'Change Appearance' && setIsDarkMode) setIsDarkMode(!isDarkMode);
             }}
           >

@@ -1,11 +1,13 @@
 """
 Paytm AI VoiceGuard - Database Layer
 MongoDB connection management and collection references
+Supports both Customer and Merchant roles
 """
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from time_utils import get_ist_now
 
 load_dotenv()
 
@@ -45,30 +47,23 @@ async def connect_db():
     await cols.users.create_index("email", unique=True)
     await cols.users.create_index("upi_id", unique=True)
     await cols.transactions.create_index([("user_id", 1), ("timestamp", -1)])
+    await cols.transactions.create_index([("merchant_id", 1), ("timestamp", -1)])
     await cols.notifications.create_index("user_id")
     await cols.merchants.create_index("merchant_id", unique=True)
+    await cols.merchants.create_index("user_id", sparse=True)
+    await cols.soundbox_events.create_index([("merchant_id", 1), ("timestamp", -1)])
 
-    # Seed default merchant if empty
-    existing = await cols.merchants.find_one({"merchant_id": "merchant_001"})
-    if not existing:
-        await cols.merchants.insert_one({
-            "merchant_id": "merchant_001",
-            "name": "Sharma General Store",
-            "upi_id": "sharma.store@paytm",
-            "category": "Retail",
-            "total_revenue": 0, "total_transactions": 0,
-            "soundbox_active": True, "fraud_alerts": 0,
-            "ai_insights_enabled": True,
-            "created_at": datetime.utcnow()
-        })
+    # Seed default offers if empty
+    offers_count = await cols.offers.count_documents({})
+    if offers_count == 0:
         await cols.offers.insert_many([
             {"title": "₹50 Cashback", "subtitle": "On first voice payment", "icon": "mic", "color": "#00BAF2", "active": True},
             {"title": "Gold Coins", "subtitle": "Earn 5x on UPI", "icon": "coins", "color": "#FFB800", "active": True},
             {"title": "Recharge Deal", "subtitle": "₹20 off on ₹199+", "icon": "smartphone", "color": "#21C17C", "active": True},
         ])
         await cols.notifications.insert_many([
-            {"user_id": "system", "title": "VoiceGuard Active", "body": "Triple-layer voice auth protects your payments", "time": "Now", "read": False, "type": "security", "created_at": datetime.utcnow()},
-            {"user_id": "system", "title": "Voice Payments", "body": "Say 'Pay 500 to Rahul' to make instant payments", "time": "Today", "read": False, "type": "promo", "created_at": datetime.utcnow()},
+            {"user_id": "system", "title": "VoiceGuard Active", "body": "Triple-layer voice auth protects your payments", "time": "Now", "read": False, "type": "security", "created_at": get_ist_now()},
+            {"user_id": "system", "title": "Voice Payments", "body": "Say 'Pay 500 to Rahul' to make instant payments", "time": "Today", "read": False, "type": "promo", "created_at": get_ist_now()},
         ])
     print("✅ MongoDB connected & seeded")
 

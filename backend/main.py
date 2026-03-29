@@ -5,12 +5,14 @@
 ║                      Team DREAMTECH                          ║
 ╚══════════════════════════════════════════════════════════════╝
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import uvicorn
 import logging
+import cv2
+import numpy as np
 
 # Silence annoying passlib warning about bcrypt version
 logging.getLogger("passlib").setLevel(logging.ERROR)
@@ -84,6 +86,30 @@ async def health():
             "Email OTP Authentication",
         ]
     }
+
+# ─── Utility: QR Decoding ───
+@app.post("/qr/decode", tags=["🔧 Utilities"])
+async def decode_qr(file: UploadFile = File(...)):
+    """Decode a QR code from an uploaded image using OpenCV"""
+    try:
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if img is None:
+            return JSONResponse(status_code=400, content={"error": "Invalid image format"})
+            
+        detector = cv2.QRCodeDetector()
+        data, bbox, straight_qrcode = detector.detectAndDecode(img)
+        
+        if data:
+            print(f"✅ Decoded QR: {data}")
+            return {"data": data}
+        else:
+            return JSONResponse(status_code=404, content={"error": "No QR code found in image"})
+    except Exception as e:
+        print(f"❌ QR Decode Error: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 # ─── Run ───
 if __name__ == "__main__":

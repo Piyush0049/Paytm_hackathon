@@ -139,19 +139,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
 
         {/* PROMO BANNERS */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.promoScroll} contentContainerStyle={s.promoContent}>
-          <View style={[s.promoBanner, { backgroundColor: isDarkMode ? '#1A2332' : '#E0F7FA' }]}>
+          <View style={[s.promoBanner, { backgroundColor: isDarkMode ? '#1e3035' : '#E0F7FA', borderColor: isDarkMode ? 'rgba(0, 186, 242, 0.3)' : 'transparent', borderWidth: isDarkMode ? 1 : 0 }]}>
             <View style={s.promoTextWrap}>
-              <Text style={[s.promoTitle, { color: '#006064' }]}>Get ₹100 Cashback</Text>
-              <Text style={[s.promoSub, { color: '#00838F' }]}>On your next Mobile Recharge</Text>
+              <Text style={[s.promoTitle, { color: isDarkMode ? '#4DD0E1' : '#006064' }]}>Get ₹100 Cashback</Text>
+              <Text style={[s.promoSub, { color: isDarkMode ? '#B2EBF2' : '#00838F' }]}>On your next Mobile Recharge</Text>
             </View>
-            <View style={[s.promoDecor, { backgroundColor: '#B2EBF2' }]} />
+            <View style={[s.promoDecor, { backgroundColor: isDarkMode ? 'rgba(77, 208, 225, 0.15)' : '#B2EBF2' }]} />
           </View>
-          <View style={[s.promoBanner, { backgroundColor: isDarkMode ? '#2A1A32' : '#FCE4EC' }]}>
+          <View style={[s.promoBanner, { backgroundColor: isDarkMode ? '#3b1e3f' : '#FCE4EC', borderColor: isDarkMode ? 'rgba(240, 98, 146, 0.3)' : 'transparent', borderWidth: isDarkMode ? 1 : 0 }]}>
             <View style={s.promoTextWrap}>
-              <Text style={[s.promoTitle, { color: '#880E4F' }]}>Paytm Postpaid</Text>
-              <Text style={[s.promoSub, { color: '#AD1457' }]}>Buy now, Pay next month</Text>
+              <Text style={[s.promoTitle, { color: isDarkMode ? '#F06292' : '#880E4F' }]}>Paytm Postpaid</Text>
+              <Text style={[s.promoSub, { color: isDarkMode ? '#F8BBD0' : '#AD1457' }]}>Buy now, Pay next month</Text>
             </View>
-            <View style={[s.promoDecor, { backgroundColor: '#F8BBD0' }]} />
+            <View style={[s.promoDecor, { backgroundColor: isDarkMode ? 'rgba(240, 98, 146, 0.15)' : '#F8BBD0' }]} />
           </View>
         </ScrollView>
 
@@ -194,7 +194,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ balance, transactions, o
                 <View style={[s.txIconWrapper, { backgroundColor: isDarkMode ? '#333' : '#F5F7FA' }]}>{getCategoryIcon(t.category)}</View>
                 <View style={s.txInfo}>
                   <Text style={[s.txRecipient, textStyle]}>{t.recipient}</Text>
-                  <Text style={[s.txTime, subTextStyle]}>{new Date(t.timestamp).toLocaleDateString()}</Text>
+                  <Text style={[s.txTime, subTextStyle]}>{t.timestamp}</Text>
                 </View>
                 <Text style={[s.txAmount, { color: t.type === 'received' ? '#21C17C' : textStyle.color }]}>
                   {t.type === 'received' ? '+' : '-'}₹{t.amount}

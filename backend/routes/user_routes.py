@@ -24,6 +24,7 @@ async def get_profile(user=Depends(get_current_user)):
         "member_since": user.get("member_since"),
         "preferred_language": user.get("preferred_language", "en"),
         "qr_url": user.get("qr_url", f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={user.get('upi_id', '')}"),
+        "role": user.get("role", "customer"),
     }
 
 # ─────────────────────── VERIFY UPI ───────────────────────

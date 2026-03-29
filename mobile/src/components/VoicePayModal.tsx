@@ -16,13 +16,16 @@ interface VoicePayModalProps {
   voiceEnrolled: boolean;
   onPaymentSuccess: (data: any) => void;
   onEnrollPress: () => void;
+  initialRecipient?: string;
+  initialAmount?: string;
 }
 
 type PayStep = 'input' | 'recording' | 'verifying' | 'success' | 'failed';
 
 export const VoicePayModal: React.FC<VoicePayModalProps> = ({
   visible, onClose, isDarkMode = false, token, backendUrl,
-  voiceEnrolled, onPaymentSuccess, onEnrollPress
+  voiceEnrolled, onPaymentSuccess, onEnrollPress,
+  initialRecipient, initialAmount
 }) => {
   const [payStep, setPayStep] = useState<PayStep>('input');
   const [recipientUpi, setRecipientUpi] = useState('');
@@ -65,14 +68,23 @@ export const VoicePayModal: React.FC<VoicePayModalProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!visible) {
-      setPayStep('input');
-      setRecipientUpi('');
-      setAmount('');
+    if (visible) {
+      if (initialRecipient && initialAmount) {
+        setRecipientUpi(initialRecipient);
+        setAmount(initialAmount);
+        // Delay slightly for modal animation
+        setTimeout(() => {
+           fetchChallengeInternal(initialRecipient, initialAmount);
+        }, 500);
+      } else {
+        setPayStep('input');
+        setRecipientUpi('');
+        setAmount('');
+      }
       setChallengePhrase('');
       setResultData(null);
     }
-  }, [visible]);
+  }, [visible, initialRecipient, initialAmount]);
 
   // Pulse animation when recording
   useEffect(() => {
@@ -90,8 +102,10 @@ export const VoicePayModal: React.FC<VoicePayModalProps> = ({
     }
   }, [recorderState.isRecording]);
 
-  const fetchChallenge = async () => {
-    if (!recipientUpi.trim() || !amount.trim()) {
+  const fetchChallenge = () => fetchChallengeInternal(recipientUpi, amount);
+
+  const fetchChallengeInternal = async (upi: string, amt: string) => {
+    if (!upi.trim() || !amt.trim()) {
       Alert.alert('Missing Info', 'Please enter recipient UPI and amount.');
       return;
     }

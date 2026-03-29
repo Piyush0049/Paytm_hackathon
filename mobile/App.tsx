@@ -22,11 +22,12 @@ import { VoicePayModal } from './src/components/VoicePayModal';
 import { SuccessOverlay } from './src/components/SuccessOverlay';
 import { QRModal } from './src/components/QRModal';
 import { MockService } from './src/services/MockService';
+import { MerchantDashboard } from './src/screens/MerchantDashboard';
 
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-43514.loca.lt'; // tunnel URL for universal global access
+const BACKEND_TUNNEL = 'https://paytm-voice-api-94933.loca.lt'; // tunnel URL for universal global access
 
 const BACKEND = BACKEND_TUNNEL;
 
@@ -37,10 +38,11 @@ const safeJson = async (res: Response) => {
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
-    'PlusJakartaSans-Regular': require('./assets/fonts/PlusJakartaSans_400Regular.ttf'),
-    'PlusJakartaSans-Medium': require('./assets/fonts/PlusJakartaSans_500Medium.ttf'),
-    'PlusJakartaSans-SemiBold': require('./assets/fonts/PlusJakartaSans_600SemiBold.ttf'),
-    'PlusJakartaSans-Bold': require('./assets/fonts/PlusJakartaSans_700Bold.ttf'),
+    'PlusJakartaSans-Regular': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-Regular.ttf',
+    'PlusJakartaSans-Medium': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-Medium.ttf',
+    'PlusJakartaSans-SemiBold': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-SemiBold.ttf',
+    'PlusJakartaSans-Bold': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-Bold.ttf',
+    'PlusJakartaSans-ExtraBold': 'https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/static/ttf/PlusJakartaSans-ExtraBold.ttf',
   });
 
   useEffect(() => {
@@ -76,6 +78,7 @@ export default function App() {
   const [scannedRecipient, setScannedRecipient] = useState<{id: string, name: string} | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showVoicePay, setShowVoicePay] = useState(false);
+  const [voicePayPreload, setVoicePayPreload] = useState<{amt: string, upi: string} | null>(null);
   const [successMsg, setSuccessMsg] = useState({ visible: false, title: '', sub: '' });
 
   useEffect(() => {
@@ -177,7 +180,7 @@ export default function App() {
 
   useEffect(() => { if (token) loadAllData(); }, [token]);
 
-  const handleAuth = async () => {
+  const handleAuth = async (extraData: any = {}) => {
     if (!authEmail || !authPassword || (authMode === 'signup' && !authName) || (showOtpField && !authOtp)) {
       Alert.alert('Missing Fields', 'Please fill all required fields');
       return;
@@ -199,9 +202,23 @@ export default function App() {
         setSuccessMsg({ visible: true, title: 'OTP Sent', sub: data.message || 'Check your email' });
       } else {
         const endpoint = authMode === 'signup' ? '/auth/signup' : '/auth/login';
-        const body = authMode === 'signup'
-          ? { email: authEmail.toLowerCase().trim(), name: authName, password: authPassword, otp: authOtp }
-          : { email: authEmail.toLowerCase().trim(), password: authPassword, otp: authOtp };
+        
+        let body: any = { 
+          email: authEmail.toLowerCase().trim(), 
+          password: authPassword, 
+          otp: authOtp 
+        };
+
+        if (authMode === 'signup') {
+          body.name = authName;
+          body.role = extraData.authRole || 'customer';
+          if (body.role === 'merchant') {
+            body.business_name = extraData.businessName;
+            body.business_category = extraData.businessCategory;
+            body.business_address = extraData.businessAddress;
+          }
+        }
+
         const res = await globalFetch(`${BACKEND}${endpoint}`, {
           method: 'POST',
           body: JSON.stringify(body)
@@ -241,7 +258,12 @@ export default function App() {
     setShowOtpField(false); setActiveTab('home');
   };
 
-  const processVoicePlay = () => {
+  const processVoicePlay = (preload?: {amt: string, upi: string}) => {
+    if (preload) {
+      setVoicePayPreload(preload);
+    } else {
+      setVoicePayPreload(null);
+    }
     setShowVoicePay(true);
   };
 
@@ -321,11 +343,13 @@ export default function App() {
           subScreen === 'transfer' ? <TransferScreen 
             onBack={() => { setSubScreen(null); setScannedRecipient(null); }} 
             onTransfer={(a, r, p) => { setScannedRecipient(null); handleTransfer(a, r, p); }} 
+            onVoicePay={(a, r) => { setScannedRecipient(null); setSubScreen(null); processVoicePlay({ amt: a.toString(), upi: r }); }}
             initialRecipient={scannedRecipient || undefined}
             isDarkMode={isDarkMode}
           /> :
           subScreen === 'recharge' ? <RechargeScreen onBack={() => setSubScreen(null)} onRecharge={(n, a) => { setSubScreen(null); handleRecharge(n, a); }} /> :
           subScreen === 'history' ? <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} /> :
+          subScreen === 'merchant_dashboard' ? <MerchantDashboard onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} isDarkMode={isDarkMode} /> :
           subScreen === 'voiceguard' ? <VoiceEnrollScreen
             onBack={() => setSubScreen(null)}
             onComplete={() => { setSubScreen(null); loadAllData(); }}
@@ -352,17 +376,20 @@ export default function App() {
         )}
         {activeTab === 'history' && <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} token={token} backendUrl={BACKEND} />}
         {activeTab === 'notifs' && <AlertsScreen notifications={notifications} isDarkMode={isDarkMode} />}
-        {activeTab === 'profile' && <ProfileScreen profile={profile} logout={logout} onEnroll={handleEnrollVoice} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} onBack={() => setActiveTab('home')} />}
+        {activeTab === 'profile' && <ProfileScreen profile={profile} logout={logout} onEnroll={handleEnrollVoice} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} onBack={() => setActiveTab('home')} onMerchantDashboard={() => { setActiveTab('home'); setSubScreen('merchant_dashboard'); }} />}
 
         <VoicePayModal
           visible={showVoicePay}
-          onClose={() => setShowVoicePay(false)}
+          onClose={() => { setShowVoicePay(false); setVoicePayPreload(null); }}
           isDarkMode={isDarkMode}
           token={token}
           backendUrl={BACKEND}
           voiceEnrolled={balance?.voice_enrolled || false}
+          initialRecipient={voicePayPreload?.upi}
+          initialAmount={voicePayPreload?.amt}
           onPaymentSuccess={(data: any) => {
             setShowVoicePay(false);
+            setVoicePayPreload(null);
             setSuccessMsg({ visible: true, title: 'Voice Payment Sent', sub: `₹${data.amount} sent to ${data.recipient}` });
             loadAllData();
           }}
