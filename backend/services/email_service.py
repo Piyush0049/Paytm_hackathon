@@ -41,7 +41,7 @@ body {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background:
     <div class="otp"><p>{otp}</p></div>
     <p style="margin-top:30px;font-size:14px;color:#888;">Do not share this code with anyone.<br>Paytm employees will never ask for your OTP.</p>
   </div>
-  <div class="f"><p>&copy; 2026 Paytm AI VoiceGuard &bull; DREAMTECH</p></div>
+  <div class="f"><p>&copy; 2026 Paytm AI VoiceGuard &bull; Piyush</p></div>
 </div>
 </body></html>"""
 

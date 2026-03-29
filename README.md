@@ -2,7 +2,7 @@
 
 ### Secure, AI-Powered Voice Biometric UPI Payments
 
-**Team DREAMTECH** | Paytm Project AI – Build for India 2026
+**Developed by [Piyush](https://github.com/Piyush0049)** | Paytm Project AI – Build for India 2026
 
 ---
 

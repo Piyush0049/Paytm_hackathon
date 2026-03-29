@@ -28,7 +28,7 @@ import { PaymentSuccessScreen } from './src/screens/PaymentSuccessScreen';
 // ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
 // Use the public tunnel unconditionally for off-network friends.
 const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-54868.loca.lt'; // tunnel URL for universal global access
+const BACKEND_TUNNEL = 'https://paytm-voice-api-39300.loca.lt'; // tunnel URL for universal global access
 const BACKEND = BACKEND_TUNNEL;
 const PAYTM_SUCCESS_SOUND = 'https://res.cloudinary.com/da2imhgtf/video/upload/v1774766529/New_Project_5_w3uzoe.mp3';
 
@@ -39,11 +39,11 @@ const safeJson = async (res: Response) => {
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
-    'PlusJakartaSans-Regular': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-Regular.ttf',
-    'PlusJakartaSans-Medium': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-Medium.ttf',
-    'PlusJakartaSans-SemiBold': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-SemiBold.ttf',
-    'PlusJakartaSans-Bold': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-Bold.ttf',
-    'PlusJakartaSans-ExtraBold': 'https://cdn.jsdelivr.net/gh/tokotype/PlusJakartaSans@main/fonts/static/ttf/PlusJakartaSans-ExtraBold.ttf',
+    'Inter-Regular': 'https://cdn.jsdelivr.net/gh/rsms/inter@v3.19/docs/font-files/Inter-Regular.ttf',
+    'Inter-Medium': 'https://cdn.jsdelivr.net/gh/rsms/inter@v3.19/docs/font-files/Inter-Medium.ttf',
+    'Inter-SemiBold': 'https://cdn.jsdelivr.net/gh/rsms/inter@v3.19/docs/font-files/Inter-SemiBold.ttf',
+    'Inter-Bold': 'https://cdn.jsdelivr.net/gh/rsms/inter@v3.19/docs/font-files/Inter-Bold.ttf',
+    'Inter-ExtraBold': 'https://cdn.jsdelivr.net/gh/rsms/inter@v3.19/docs/font-files/Inter-ExtraBold.ttf',
   });
 
   const successPlayer = useAudioPlayer(PAYTM_SUCCESS_SOUND);
@@ -341,6 +341,7 @@ export default function App() {
         {subScreen !== 'scan' && subScreen !== 'payment_success' && (
           <Header
             userName={profile?.name || 'User'}
+            userRole={profile?.role}
             onProfilePress={() => setShowUserQR(true)}
             onBellPress={() => setActiveTab('notifs')}
             isDarkMode={isDarkMode}
@@ -353,6 +354,7 @@ export default function App() {
             onScan={(data) => { setScannedRecipient(data); setSubScreen('transfer'); }}
             token={token}
             backendUrl={BACKEND}
+            isDarkMode={isDarkMode}
           /> :
             subScreen === 'transfer' ? <TransferScreen
               onBack={() => { setSubScreen(null); setScannedRecipient(null); }}
@@ -361,7 +363,11 @@ export default function App() {
               initialRecipient={scannedRecipient || undefined}
               isDarkMode={isDarkMode}
             /> :
-              subScreen === 'recharge' ? <RechargeScreen onBack={() => setSubScreen(null)} onRecharge={(n, a) => { setSubScreen(null); handleRecharge(n, a); }} /> :
+              subScreen === 'recharge' ? <RechargeScreen
+                onBack={() => setSubScreen(null)}
+                onRecharge={(n, a) => { setSubScreen(null); handleRecharge(n, a); }}
+                isDarkMode={isDarkMode}
+              /> :
                 subScreen === 'history' ? <HistoryScreen transactions={transactions} isDarkMode={isDarkMode} onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} /> :
                   subScreen === 'merchant_dashboard' ? <MerchantDashboard onBack={() => setSubScreen(null)} token={token} backendUrl={BACKEND} isDarkMode={isDarkMode} /> :
                     subScreen === 'voiceguard' ? <VoiceEnrollScreen
@@ -369,6 +375,7 @@ export default function App() {
                       onComplete={() => { setSubScreen(null); loadAllData(); }}
                       token={token}
                       backendUrl={BACKEND}
+                      isDarkMode={isDarkMode}
                     /> :
                       subScreen === 'payment_success' ? <PaymentSuccessScreen
                         amount={successData?.amount || 0}

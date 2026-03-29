@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
-import { ShieldCheck, LineChart, Globe, ChevronRight, LogOut, Settings2, HelpCircle, Moon, ArrowLeft } from 'lucide-react-native';
+import { ShieldCheck, LineChart, Globe, ChevronRight, LogOut, Settings2, HelpCircle, Moon, ArrowLeft, Store } from 'lucide-react-native';
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED } from '../styles/theme';
 import { QRModal } from '../components/QRModal';
 
@@ -48,11 +48,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
       <View style={[s.profileHeaderCard, { backgroundColor: surface, shadowColor: isDarkMode ? '#000' : '#CCC' }]}>
         <View style={s.avatarWrapper}>
           <View style={s.avatarBig}>
-            <Text style={s.avatarTextBig}>{(profile?.name || 'U')[0].toUpperCase()}</Text>
+            {profile?.role === 'merchant' ? (
+              <Store size={32} color={WHITE} />
+            ) : (
+              <Text style={s.avatarTextBig}>{(profile?.name || 'U')[0].toUpperCase()}</Text>
+            )}
           </View>
         </View>
         <Text style={[s.profileName, { color: text }]}>{profile?.name || 'User'}</Text>
-        <Text style={[s.profileEmail, { color: textMuted }]}>{profile?.email || ''} {profile?.role === 'merchant' && '🏪'}</Text>
+        <Text style={[s.profileEmail, { color: textMuted }]}>{profile?.email || ''}</Text>
         <View style={s.upiBadge}>
           <Text style={s.upiBadgeText}>{profile?.upi_id || 'UPI ID Not Set'}</Text>
         </View>
@@ -77,9 +81,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
       {/* Settings List */}
       <View style={[s.profileListGroup, { backgroundColor: surface }]}>
         {menuItems.map((item, i) => (
-          <TouchableOpacity 
-            key={i} 
-            style={[s.profileListItem, { borderBottomColor: isDarkMode ? '#333' : '#F5F5F5', borderBottomWidth: i === menuItems.length - 1 ? 0 : 1 }]} 
+          <TouchableOpacity
+            key={i}
+            style={[s.profileListItem, { borderBottomColor: isDarkMode ? '#333' : '#F5F5F5', borderBottomWidth: i === menuItems.length - 1 ? 0 : 1 }]}
             onPress={() => {
               if (item.label.includes('VoiceGuard')) onEnroll();
               if (item.label === 'Merchant Dashboard' && onMerchantDashboard) onMerchantDashboard();
@@ -100,16 +104,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
         <LogOut size={20} color="#FF4E4E" style={{ marginRight: 8 }} />
         <Text style={s.logoutTextReal}>Sign Out securely</Text>
       </TouchableOpacity>
-      
+
       <View style={{ height: 120 }} />
 
       {/* Modal */}
-      <QRModal 
-        visible={showQR} 
-        onClose={() => setShowQR(false)} 
-        profile={profile} 
+      <QRModal
+        visible={showQR}
+        onClose={() => setShowQR(false)}
+        profile={profile}
         isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode || (() => {})}
+        setIsDarkMode={setIsDarkMode || (() => { })}
       />
     </ScrollView>
   );
@@ -117,7 +121,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ profile, logout, o
 
 const s = StyleSheet.create({
   screen: { flex: 1 },
-  
+
   topBackground: { height: 120, width: '100%', backgroundColor: PAYTM_BLUE, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, position: 'absolute', top: 0 },
   profileHeaderCard: { marginHorizontal: 20, marginTop: 40, borderRadius: 24, padding: 24, alignItems: 'center', elevation: 0, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, marginBottom: 20 },
   avatarWrapper: { marginTop: -50, padding: 6, backgroundColor: WHITE, borderRadius: 50, marginBottom: 12 },

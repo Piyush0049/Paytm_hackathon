@@ -13,14 +13,14 @@ interface ScanScreenProps {
   onScan: (data: { id: string, name: string }) => void;
   token: string | null;
   backendUrl: string;
+  isDarkMode?: boolean;
 }
 
-export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, backendUrl }) => {
+export const ScanScreen: React.FC<ScanScreenProps> = ({ onBack, onScan, token, backendUrl, isDarkMode = false }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [isTorchOn, setIsTorchOn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {

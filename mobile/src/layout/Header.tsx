@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
-import { Search, Bell } from 'lucide-react-native';
+import { Search, Bell, Store } from 'lucide-react-native';
 import { PAYTM_BLUE, WHITE, fonts, layout } from '../styles/theme';
 
 interface HeaderProps {
     userName: string;
+    userRole?: string;
     onProfilePress?: () => void;
     onBellPress?: () => void;
     isDarkMode?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, onBellPress, isDarkMode = false }) => {
+export const Header: React.FC<HeaderProps> = ({ userName, userRole, onProfilePress, onBellPress, isDarkMode = false }) => {
     const initials = (userName || 'U')[0].toUpperCase();
     const paytmLogo = { uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1774718135/app-logo_znnatr.png' };
 
@@ -18,7 +19,11 @@ export const Header: React.FC<HeaderProps> = ({ userName, onProfilePress, onBell
         <View style={[s.topBarReal, { backgroundColor: isDarkMode ? '#121212' : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>
             <View style={s.topBarLeft}>
                 <TouchableOpacity style={s.userIconReal} onPress={onProfilePress}>
-                    <Text style={s.userIconInit}>{initials}</Text>
+                    {userRole === 'merchant' ? (
+                        <Store size={20} color="#FFF" />
+                    ) : (
+                        <Text style={s.userIconInit}>{initials}</Text>
+                    )}
                 </TouchableOpacity>
                 <Image
                     source={paytmLogo}

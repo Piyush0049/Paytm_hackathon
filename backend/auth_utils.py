@@ -12,7 +12,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from database import cols
 
 # ─── Configuration ───
-JWT_SECRET = os.getenv("JWT_SECRET", "paytm_voiceguard_super_secret_key_2026_dreamtech_hackathon_india")
+JWT_SECRET = os.getenv("JWT_SECRET", "paytm_voiceguard_super_secret_key_2026_piyush_hackathon_india")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 week
 

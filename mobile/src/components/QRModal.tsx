@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Modal, Dimensions, TouchableOpacity, ScrollView, Switch } from 'react-native';
-import { ArrowLeft, Bell, Copy, BadgeCheck, Landmark, Share, Plus, Settings2, Moon, Sun } from 'lucide-react-native';
+import { ArrowLeft, Bell, Copy, BadgeCheck, Landmark, Share, Plus, Settings2, Moon, Sun, Store } from 'lucide-react-native';
 import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, WHITE, fonts, DARK_BACKGROUND, DARK_SURFACE, DARK_TEXT, DARK_TEXT_MUTED, DARK_BORDER } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
@@ -54,7 +54,11 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, onClose, profile, isD
             <View style={s.userInfoRow}>
               <View style={s.avatarContainer}>
                 <View style={s.avatar}>
-                  <Text style={s.avatarText}>{(profile.name || 'U')[0].toUpperCase()}</Text>
+                  {profile.role === 'merchant' ? (
+                    <Store size={24} color={PAYTM_LIGHT_BLUE} />
+                  ) : (
+                    <Text style={s.avatarText}>{(profile.name || 'U')[0].toUpperCase()}</Text>
+                  )}
                 </View>
               </View>
               <View style={s.userDetails}>

@@ -15,11 +15,11 @@ export const DARK_TEXT_MUTED = '#AAAAAA';
 export const DARK_BORDER = '#333333';
 
 export const fonts = {
-  regular: 'PlusJakartaSans-SemiBold',
-  medium: 'PlusJakartaSans-Bold',
-  semiBold: 'PlusJakartaSans-ExtraBold',
-  bold: 'PlusJakartaSans-ExtraBold',
-  extraBold: 'PlusJakartaSans-ExtraBold',
+  regular: 'Inter-Regular',
+  medium: 'Inter-Medium',
+  semiBold: 'Inter-SemiBold',
+  bold: 'Inter-Bold',
+  extraBold: 'Inter-ExtraBold',
 };
 
 export const shadows = {

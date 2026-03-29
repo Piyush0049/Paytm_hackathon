@@ -6,6 +6,7 @@ import { PAYTM_BLUE, PAYTM_LIGHT_BLUE, SUCCESS_GREEN, WHITE, BACKGROUND_COLOR, f
 interface RechargeScreenProps {
   onBack: () => void;
   onRecharge: (number: string, amount: number) => void;
+  isDarkMode?: boolean;
 }
 
 const MOCK_PLANS = [
@@ -15,12 +16,9 @@ const MOCK_PLANS = [
   { id: 4, price: 155, validity: '24 Days', data: '2 GB Total', desc: 'Unlimited Calls + 300 SMS' },
 ];
 
-export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRecharge }) => {
+export const RechargeScreen: React.FC<RechargeScreenProps> = ({ onBack, onRecharge, isDarkMode = false }) => {
   const [number, setNumber] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
-
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
 
   const bg = isDarkMode ? '#121212' : BACKGROUND_COLOR;
   const cardBg = isDarkMode ? '#1E1E1E' : WHITE;
