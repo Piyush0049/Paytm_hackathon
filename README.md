@@ -219,4 +219,3 @@ See the full [LICENSE](./LICENSE) file for details.
 
 ---
 
-**Built with ❤️ by Team DREAMTECH**
