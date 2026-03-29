@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════╗
 ║         Paytm AI VoiceGuard - Backend Server v2.0           ║
 ║    Secure Voice UPI Payments with Deep Soundbox Integration  ║
-║                       Piyush                                ║
+║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 """
 from fastapi import FastAPI, UploadFile, File
