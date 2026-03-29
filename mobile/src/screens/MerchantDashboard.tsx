@@ -70,7 +70,6 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onBack, to
 
   return (
     <View style={[s.container, { backgroundColor: bg }]}>
-      {/* Premium Profile Header Background */}
       <View style={s.topBackground} />
 
       {/* Header */}
