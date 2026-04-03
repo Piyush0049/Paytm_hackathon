@@ -24,13 +24,12 @@ import { QRModal } from './src/components/QRModal';
 import { MockService } from './src/services/MockService';
 import { MerchantDashboard } from './src/screens/MerchantDashboard';
 import { PaymentSuccessScreen } from './src/screens/PaymentSuccessScreen';
+import { BACKEND_URL, PAYTM_SUCCESS_SOUND } from './src/config';
 
-// ⚠️ IMPORTANT: After restarting `python main.py`, copy the ngrok URL printed in the terminal and paste it below.
-// Use the public tunnel unconditionally for off-network friends.
-const BACKEND_LOCAL = 'http://192.168.1.6:8000';
-const BACKEND_TUNNEL = 'https://paytm-voice-api-98342.loca.lt'; // tunnel URL for universal global access
-const BACKEND = BACKEND_TUNNEL;
-const PAYTM_SUCCESS_SOUND = 'https://res.cloudinary.com/da2imhgtf/video/upload/v1774766529/New_Project_5_w3uzoe.mp3';
+// Backend URL is now loaded from environment variables.
+// DEV:  Set in .env              (localtunnel / LAN URL)
+// PROD: Set in .env.production   (your deployed server URL)
+const BACKEND = BACKEND_URL;
 
 const safeJson = async (res: Response) => {
   const txt = await res.text();

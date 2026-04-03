@@ -61,10 +61,11 @@ async function killPortSafer(port) {
         if (!beUrl || alreadyStarted) return;
         alreadyStarted = true;
 
-        console.log(`🔧 Syncing App.tsx with Global API...`);
-        let content = fs.readFileSync(APP_PATH, 'utf8');
-        content = content.replace(/const BACKEND_TUNNEL = 'https:\/\/.*';/g, `const BACKEND_TUNNEL = '${beUrl}';`);
-        fs.writeFileSync(APP_PATH, content);
+        console.log(`🔧 Syncing .env with Global API URL...`);
+        const envPath = path.join(__dirname, '.env');
+        let envContent = fs.readFileSync(envPath, 'utf8');
+        envContent = envContent.replace(/EXPO_PUBLIC_BACKEND_URL=.*/g, `EXPO_PUBLIC_BACKEND_URL=${beUrl}`);
+        fs.writeFileSync(envPath, envContent);
 
         console.log(`📲 Provisioning Mobile Bundle Tunnel (Bypassing Ngrok Bug)...`);
 
