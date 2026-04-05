@@ -13,7 +13,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ userName, userRole, onProfilePress, onBellPress, isDarkMode = false }) => {
     const initials = (userName || 'U')[0].toUpperCase();
-    const paytmLogo = { uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1774718135/app-logo_znnatr.png' };
+    const paytmLogo = { uri: 'https://res.cloudinary.com/da2imhgtf/image/upload/v1775427244/WhatsApp_Image_2026-03-26_at_8.02.06_AM-removebg-preview_wlkcqo.png' };
 
     return (
         <View style={[s.topBarReal, { backgroundColor: isDarkMode ? PAYTM_LIGHT_BLUE : PAYTM_BLUE, paddingTop: layout.headerPaddingTop, height: layout.headerHeight }]}>

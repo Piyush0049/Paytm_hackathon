@@ -41,8 +41,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
   const onAuthPress = () => {
     // We intercept the original handleAuth to inject the extra role fields
-    handleAuth({ 
-      authRole, 
+    handleAuth({
+      authRole,
       businessName: authRole === 'merchant' ? businessName : undefined,
       businessCategory: authRole === 'merchant' ? businessCategory : undefined,
       businessAddress: authRole === 'merchant' ? businessAddress : undefined
@@ -75,14 +75,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 <>
                   {/* Role Selector */}
                   <View style={s.roleSelector}>
-                    <TouchableOpacity 
-                      style={[s.roleOption, authRole === 'customer' && s.roleActive]} 
+                    <TouchableOpacity
+                      style={[s.roleOption, authRole === 'customer' && s.roleActive]}
                       onPress={() => setAuthRole('customer')}
                     >
                       <Text style={[s.roleText, authRole === 'customer' && [s.roleTextActive, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]]}>Personal</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[s.roleOption, authRole === 'merchant' && s.roleActive]} 
+                    <TouchableOpacity
+                      style={[s.roleOption, authRole === 'merchant' && s.roleActive]}
                       onPress={() => setAuthRole('merchant')}
                     >
                       <Text style={[s.roleText, authRole === 'merchant' && [s.roleTextActive, { color: isDarkMode ? PAYTM_DARK_THEME_LIGHT_BLUE : PAYTM_BLUE }]]}>Merchant Business</Text>
